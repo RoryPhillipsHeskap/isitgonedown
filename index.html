@@ -115,6 +115,35 @@
     a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; }
 
+    /* ── LIGHT MODE ── */
+    body.light { --bg:#f4f4f9; --surface:#ffffff; --surface-2:#ebebf2; --border:#dcdce8; --border-soft:#e8e8f0; --text:#14141f; --text-muted:#5a5a72; --text-faint:#9898b0; }
+    body.light .topnav { background:rgba(244,244,249,0.95); }
+    body.light .ad-inner { color:var(--text-faint); }
+    body.light .hero-badge { background:var(--surface); border-color:var(--border); }
+
+    /* ── THEME TOGGLE ── */
+    .theme-toggle { width:34px; height:34px; border-radius:8px; background:none; border:1px solid var(--border); color:var(--text-faint); font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; flex-shrink:0; }
+    .theme-toggle:hover { border-color:var(--accent); color:var(--accent); }
+
+    /* ── MY SITES BAR ── */
+    .my-sites-bar { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-bottom:20px; }
+    .my-sites-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+    .my-sites-header h3 { font-size:0.71rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); }
+    .my-sites-input-row { display:flex; gap:8px; margin-bottom:10px; }
+    .my-sites-input { flex:1; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:7px 12px; font-size:0.8rem; color:var(--text); font-family:var(--font); outline:none; transition:border-color 0.15s; }
+    .my-sites-input:focus { border-color:var(--accent); }
+    .my-sites-input::placeholder { color:var(--text-faint); }
+    .my-sites-add-btn { background:var(--accent); color:#fff; border:none; border-radius:var(--radius-sm); padding:7px 14px; font-size:0.78rem; font-weight:600; cursor:pointer; font-family:var(--font); white-space:nowrap; transition:opacity 0.15s; }
+    .my-sites-add-btn:hover { opacity:0.85; }
+    .my-sites-list { display:flex; flex-wrap:wrap; gap:8px; }
+    .my-site-pill { display:inline-flex; align-items:center; gap:0; background:var(--surface-2); border:1px solid var(--border); border-radius:20px; overflow:hidden; transition:border-color 0.15s; }
+    .my-site-pill:hover { border-color:var(--accent); }
+    .my-site-pill-name { padding:5px 10px 5px 12px; font-size:0.78rem; color:var(--text-muted); cursor:pointer; font-weight:500; }
+    .my-site-pill-name:hover { color:var(--accent); }
+    .my-site-pill-remove { padding:5px 10px 5px 4px; background:none; border:none; color:var(--text-faint); font-size:0.9rem; cursor:pointer; line-height:1; transition:color 0.15s; font-family:var(--font); }
+    .my-site-pill-remove:hover { color:var(--down); }
+    .my-sites-empty { font-size:0.76rem; color:var(--text-faint); font-style:italic; }
+
     /* ── TOP NAV ── */
     .topnav { position:sticky; top:0; z-index:200; background:rgba(10,10,15,0.92); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 20px; height:48px; }
     .topnav-brand { display:flex; align-items:center; gap:8px; font-size:0.88rem; font-weight:700; color:var(--text); letter-spacing:-0.01em; text-decoration:none; }
@@ -275,6 +304,9 @@
     .history-header h2 { font-size:0.71rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); }
     .history-clear { font-size:0.71rem; color:var(--text-faint); background:none; border:none; cursor:pointer; font-family:var(--font); }
     .history-clear:hover { color:var(--down); }
+    .history-export { font-size:0.71rem; color:var(--text-faint); background:none; border:1px solid var(--border); border-radius:6px; padding:2px 8px; cursor:pointer; font-family:var(--font); transition:all 0.15s; }
+    .history-export:hover { border-color:var(--accent); color:var(--accent); }
+    .history-actions { display:flex; align-items:center; gap:8px; }
     .history-list { display:flex; flex-direction:column; gap:6px; }
     .history-item { display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 14px; cursor:pointer; transition:border-color 0.15s; animation:slideUp 0.2s ease; }
     .history-item:hover { border-color:var(--accent); }
@@ -373,7 +405,11 @@
     </svg>
     IsItGoneDown<span class="tn-dot">.com</span>
   </a>
-  <div class="topnav-actions"></div>
+  <div class="topnav-actions">
+    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+      <span id="theme-icon">☀️</span>
+    </button>
+  </div>
 </nav>
 
 <!-- TOP BANNER AD (728x90) -->
@@ -394,6 +430,21 @@
       Clear all
     </button>
   </header>
+
+  <!-- MY SITES BAR -->
+  <div class="my-sites-bar">
+    <div class="my-sites-header">
+      <h3>⭐ My Sites</h3>
+    </div>
+    <div class="my-sites-input-row">
+      <input class="my-sites-input" id="my-sites-input" type="text" placeholder="Add a site — e.g. mywebsite.com" autocomplete="off" spellcheck="false"
+        onkeydown="if(event.key==='Enter')addMySite()"/>
+      <button class="my-sites-add-btn" onclick="addMySite()">+ Add</button>
+    </div>
+    <div class="my-sites-list" id="my-sites-list">
+      <span class="my-sites-empty">No saved sites yet — add your favourites above</span>
+    </div>
+  </div>
 
   <!-- CHECK CARD -->
   <div class="check-card">
@@ -473,7 +524,10 @@
   <div class="history-section" id="history-section" style="display:none">
     <div class="history-header">
       <h2>Recent checks</h2>
-      <button class="history-clear" onclick="clearHistory()">Clear history</button>
+      <div class="history-actions">
+        <button class="history-export" onclick="exportHistoryCSV()" title="Download as CSV">⬇ Export CSV</button>
+        <button class="history-clear" onclick="clearHistory()">Clear history</button>
+      </div>
     </div>
     <div class="history-list" id="history-list"></div>
   </div>
@@ -552,7 +606,7 @@ const LS_HISTORY   = 'isitgonedown_history';
 const LS_VOTES     = 'isitgonedown_votes';
 const LS_WATCHLIST = 'isitgonedown_watchlist';
 const VOTE_TTL_MS  = 2 * 60 * 60 * 1000;
-const MAX_HISTORY  = 8;
+const MAX_HISTORY  = 50;
 
 function normalise(r) {
   r = r.trim();
@@ -820,6 +874,71 @@ function renderHistory() {
 })();
 
 renderHistory();
+
+// ── DARK / LIGHT MODE ──
+function applyTheme(theme) {
+  document.body.classList.toggle('light', theme === 'light');
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+  localStorage.setItem('isitgonedown_theme', theme);
+}
+function toggleTheme() {
+  const current = localStorage.getItem('isitgonedown_theme') || 'dark';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+(function initTheme() {
+  const saved = localStorage.getItem('isitgonedown_theme') || 'dark';
+  applyTheme(saved);
+})();
+
+// ── EXPORT HISTORY AS CSV ──
+function exportHistoryCSV() {
+  const h = loadHistory();
+  if (!h.length) { alert('No history to export yet — run some checks first!'); return; }
+  const rows = [['URL','Status','HTTP Code','Response Time (ms)','Checked At']];
+  h.forEach(e => rows.push([e.dUrl, e.status, e.httpCode||'', e.elapsed||'', e.ts]));
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'isitgonedown-history.csv';
+  a.click();
+}
+
+// ── MY SITES ──
+const LS_MYSITES = 'isitgonedown_mysites';
+function loadMySites() { try{return JSON.parse(localStorage.getItem(LS_MYSITES)||'[]');}catch{return[];} }
+function saveMySites(sites) { localStorage.setItem(LS_MYSITES, JSON.stringify(sites)); }
+function addMySite() {
+  const input = document.getElementById('my-sites-input');
+  const val = input.value.trim();
+  if (!val) return;
+  const dUrl = displayUrl(val);
+  const sites = loadMySites().filter(s => s !== dUrl);
+  sites.unshift(dUrl);
+  saveMySites(sites.slice(0, 20));
+  input.value = '';
+  renderMySites();
+}
+function removeMySite(url) {
+  saveMySites(loadMySites().filter(s => s !== url));
+  renderMySites();
+}
+function renderMySites() {
+  const sites = loadMySites();
+  const list = document.getElementById('my-sites-list');
+  if (!list) return;
+  if (!sites.length) {
+    list.innerHTML = '<span class="my-sites-empty">No saved sites yet — add your favourites above</span>';
+    return;
+  }
+  list.innerHTML = sites.map(s => `
+    <div class="my-site-pill">
+      <span class="my-site-pill-name" onclick="quickCheck('${s}')" title="Check ${s}">${s}</span>
+      <button class="my-site-pill-remove" onclick="removeMySite('${s}')" title="Remove">×</button>
+    </div>`).join('');
+}
+renderMySites();
 
 // ── CLEAR ALL ──
 function clearAll() {
