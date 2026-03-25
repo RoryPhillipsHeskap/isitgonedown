@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IsItGoneDown.com — Is the website down or just you?</title>
+  <meta name="description" content="Check if any website is down for everyone or just you. Free, instant, no signup. Crowdsourced reports, email alerts, bulk checking."/>
+  <meta name="keywords" content="is it down, website down checker, site down, is the site down, down for everyone, down for just me"/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://isitgonedown.com/"/>
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="IsItGoneDown.com — Is the website down?"/>
+  <meta property="og:description" content="Check if any website is down for everyone or just you. Free and instant."/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://isitgonedown.com/"/>
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:title" content="IsItGoneDown.com"/>
+  <meta name="twitter:description" content="Check if any website is down for everyone or just you. Free and instant."/>
+
+  <!-- ═══════════════════════════════════
+       FAVICON — inline SVG, no extra file needed
+  ═══════════════════════════════════ -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%237c6ff7'/><circle cx='16' cy='16' r='7' fill='none' stroke='white' stroke-width='2.5'/><line x1='16' y1='9' x2='16' y2='17' stroke='white' stroke-width='2.5' stroke-linecap='round'/><circle cx='16' cy='21' r='1.5' fill='white'/></svg>"/>
+
+  <!-- ═══════════════════════════════════
+       GOOGLE ANALYTICS 4
+       ↓↓↓ PASTE YOUR GA4 TAG HERE — replace G-XXXXXXXXXX ↓↓↓
+  ═══════════════════════════════════ -->
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script> -->
+
+  <!-- ═══════════════════════════════════
+       GOOGLE ADSENSE — site-level auto-ads
+       ↓↓↓ REPLACE ca-pub-XXXXXXXX WITH YOUR PUBLISHER ID ↓↓↓
+  ═══════════════════════════════════ -->
+  <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+
+  <!-- ═══════════════════════════════════
+       JSON-LD STRUCTURED DATA — SEO boost
+  ═══════════════════════════════════ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "name": "IsItGoneDown.com",
+        "url": "https://isitgonedown.com",
+        "description": "Free website down checker. Find out if any site is down for everyone or just you.",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://isitgonedown.com/?url={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I check if a website is down?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Enter the website URL above and click Check it. We test from a server-side proxy and your browser to give a global vs local result." }
+          },
+          {
+            "@type": "Question",
+            "name": "What does down for everyone mean?",
+            "acceptedAnswer": { "@type": "Answer", "text": "If a site is down for everyone, the hosting server is unreachable from anywhere — not just your location. You'll need to wait for the site owner to fix it." }
+          },
+          {
+            "@type": "Question",
+            "name": "What if the site is up globally but I still can't reach it?",
+            "acceptedAnswer": { "@type": "Answer", "text": "The issue is likely your ISP, a local firewall, or DNS. Try clearing cache, flushing DNS, or using a VPN to bypass the block." }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --bg:          #0a0a0f;
+      --surface:     #111118;
+      --surface-2:   #18181f;
+      --border:      #23232e;
+      --border-soft: #1c1c26;
+      --text:        #e4e4f0;
+      --text-muted:  #6b6b80;
+      --text-faint:  #3a3a4a;
+      --accent:      #7c6ff7;
+      --accent-dim:  rgba(124,111,247,0.15);
+      --accent-glow: rgba(124,111,247,0.08);
+      --up:          #22c55e;
+      --up-dim:      rgba(34,197,94,0.10);
+      --up-border:   rgba(34,197,94,0.28);
+      --down:        #ef4444;
+      --down-dim:    rgba(239,68,68,0.10);
+      --down-border: rgba(239,68,68,0.28);
+      --warn:        #f59e0b;
+      --warn-dim:    rgba(245,158,11,0.10);
+      --warn-border: rgba(245,158,11,0.28);
+      --radius:      12px;
+      --radius-sm:   8px;
+      --font:        'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── TOP NAV ── */
+    .topnav { position:sticky; top:0; z-index:200; background:rgba(10,10,15,0.92); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 20px; height:48px; }
+    .topnav-brand { display:flex; align-items:center; gap:8px; font-size:0.88rem; font-weight:700; color:var(--text); letter-spacing:-0.01em; text-decoration:none; }
+    .topnav-brand svg { flex-shrink:0; }
+    .topnav-brand .tn-dot { color:var(--accent); }
+    .topnav-actions { display:flex; align-items:center; gap:10px; }
+    .clear-all-btn { display:flex; align-items:center; gap:6px; background:none; border:1px solid var(--border); border-radius:8px; color:var(--text-faint); font-size:0.76rem; font-weight:500; padding:5px 12px; cursor:pointer; font-family:var(--font); transition:all 0.15s; }
+    .clear-all-btn:hover { border-color:var(--down); color:var(--down); background:rgba(239,68,68,0.06); }
+    .clear-all-btn svg { transition:transform 0.2s; }
+    .clear-all-btn:hover svg { transform:rotate(90deg); }
+
+    /* ── HERO CLEAR BUTTON ── */
+    .hero-clear-btn { display:inline-flex; align-items:center; gap:6px; margin-top:14px; background:none; border:1px solid var(--border); border-radius:20px; color:var(--text-faint); font-size:0.74rem; font-weight:500; padding:5px 14px; cursor:pointer; font-family:var(--font); transition:all 0.15s; }
+    .hero-clear-btn:hover { border-color:var(--down); color:var(--down); background:rgba(239,68,68,0.06); }
+
+    /* ── BACK TO TOP ── */
+    .back-to-top { position:fixed; bottom:28px; right:24px; width:42px; height:42px; border-radius:50%; background:var(--accent); color:#fff; border:none; font-size:1.1rem; cursor:pointer; opacity:0; pointer-events:none; transform:translateY(12px); transition:opacity 0.22s, transform 0.22s; z-index:300; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 16px rgba(124,111,247,0.35); }
+    .back-to-top.visible { opacity:1; pointer-events:auto; transform:translateY(0); }
+    .back-to-top:hover { background:#9188f9; box-shadow:0 6px 20px rgba(124,111,247,0.5); }
+
+    /* ── TOP BANNER AD (728x90) ── */
+    .ad-top-banner { width:100%; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:center; padding:8px 16px; min-height:60px; }
+    .ad-top-banner .ad-inner { width:728px; max-width:100%; height:90px; background:var(--surface-2); border:1px dashed var(--border); border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; color:var(--text-faint); font-size:0.73rem; letter-spacing:0.05em; }
+    /* ↓↓↓ SWAP ad-inner WITH: <ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-XXXX" data-ad-slot="XXXX"></ins> ↓↓↓ */
+
+    /* ── LAYOUT ── */
+    .page-wrap { display:grid; grid-template-columns:1fr 300px; gap:0; max-width:1100px; margin:0 auto; padding:32px 20px 80px; }
+    .main-col { min-width:0; padding-right:32px; }
+    .sidebar { position:sticky; top:24px; height:fit-content; display:flex; flex-direction:column; gap:16px; }
+
+    /* ── SIDEBAR AD (300x250) ── */
+    .ad-sidebar { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+    .ad-label { font-size:0.64rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-faint); padding:8px 12px 4px; }
+    .ad-sidebar .ad-inner { width:100%; height:250px; background:var(--surface-2); display:flex; align-items:center; justify-content:center; color:var(--text-faint); font-size:0.73rem; }
+    /* ↓↓↓ SWAP ad-inner WITH: <ins class="adsbygoogle" style="display:inline-block;width:300px;height:250px" data-ad-client="ca-pub-XXXX" data-ad-slot="XXXX"></ins> ↓↓↓ */
+
+    /* ── HERO ── */
+    .hero { text-align:center; padding:44px 0 36px; }
+    .hero-badge { display:inline-flex; align-items:center; gap:6px; background:var(--accent-dim); border:1px solid rgba(124,111,247,0.25); border-radius:999px; padding:4px 12px; font-size:0.73rem; font-weight:500; color:var(--accent); margin-bottom:18px; }
+    .hero-badge::before { content:'●'; font-size:0.44rem; animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .hero h1 { font-size:clamp(1.9rem,5vw,2.85rem); font-weight:800; letter-spacing:-1px; color:#fff; line-height:1.1; margin-bottom:12px; }
+    .hero h1 .accent { color:var(--accent); }
+    .hero p { font-size:0.97rem; color:var(--text-muted); max-width:460px; margin:0 auto; }
+
+    /* ── CHECK CARD / TABS ── */
+    .check-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:20px; overflow:hidden; }
+    .check-tabs { display:flex; border-bottom:1px solid var(--border); }
+    .check-tab { flex:1; padding:11px 16px; font-size:0.84rem; font-weight:600; font-family:var(--font); background:none; border:none; color:var(--text-muted); cursor:pointer; transition:all 0.15s; text-align:center; }
+    .check-tab.active { color:var(--accent); background:var(--accent-glow); border-bottom:2px solid var(--accent); }
+    .check-tab:hover:not(.active) { color:var(--text); }
+    .check-body { padding:20px; }
+    #single-panel, #bulk-panel { display:none; }
+    #single-panel.active, #bulk-panel.active { display:block; }
+
+    /* ── INPUTS ── */
+    .input-row { display:flex; gap:10px; }
+    .input-row input, .bulk-input { background:var(--bg); border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:13px 16px; font-size:0.93rem; font-family:var(--font); color:var(--text); outline:none; transition:border-color 0.15s; width:100%; }
+    .input-row input { flex:1; }
+    .input-row input::placeholder, .bulk-input::placeholder { color:var(--text-faint); }
+    .input-row input:focus, .bulk-input:focus { border-color:var(--accent); }
+    .btn-primary { background:var(--accent); color:#fff; border:none; border-radius:var(--radius-sm); padding:13px 24px; font-size:0.93rem; font-weight:600; font-family:var(--font); cursor:pointer; white-space:nowrap; transition:opacity 0.15s,transform 0.1s; }
+    .btn-primary:hover:not(:disabled) { opacity:0.87; }
+    .btn-primary:active:not(:disabled) { transform:scale(0.97); }
+    .btn-primary:disabled { opacity:0.4; cursor:not-allowed; }
+    .bulk-inputs { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+    .bulk-row { display:flex; gap:8px; align-items:center; }
+    .bulk-num { font-size:0.74rem; color:var(--text-faint); width:18px; text-align:right; flex-shrink:0; }
+    .check-hint { margin-top:10px; font-size:0.76rem; color:var(--text-faint); }
+    .check-hint span { color:var(--text-muted); cursor:pointer; transition:color 0.12s; }
+    .check-hint span:hover { color:var(--accent); }
+
+    /* ── POPULAR SITES ── */
+    .popular-section { margin-bottom:24px; }
+    .popular-section h2 { font-size:0.71rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); margin-bottom:10px; }
+    .popular-grid { display:flex; flex-wrap:wrap; gap:7px; }
+    .pop-btn { display:flex; align-items:center; gap:7px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:8px 13px; font-size:0.79rem; font-weight:500; font-family:var(--font); color:var(--text-muted); cursor:pointer; transition:all 0.15s; }
+    .pop-btn:hover { border-color:var(--accent); color:var(--text); }
+
+    /* ── RESULT CARD ── */
+    #result-area, #bulk-result-area { margin-bottom:20px; }
+    .result-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; animation:slideUp 0.28s ease; margin-bottom:12px; }
+    @keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .result-bar { height:4px; width:100%; }
+    .result-bar.up { background:var(--up); }
+    .result-bar.down { background:var(--down); }
+    .result-bar.warn { background:var(--warn); }
+    .result-body { padding:20px 22px; }
+    .result-top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:4px; }
+    .result-status-row { display:flex; align-items:center; gap:10px; }
+    .status-dot { width:11px; height:11px; border-radius:50%; flex-shrink:0; }
+    .up   .status-dot { background:var(--up);   box-shadow:0 0 7px var(--up); }
+    .down .status-dot { background:var(--down); box-shadow:0 0 7px var(--down); }
+    .warn .status-dot { background:var(--warn); box-shadow:0 0 7px var(--warn); }
+    .status-label { font-size:1.08rem; font-weight:700; }
+    .up   .status-label { color:var(--up); }
+    .down .status-label { color:var(--down); }
+    .warn .status-label { color:var(--warn); }
+
+    /* ── SHARE BUTTONS ── */
+    .share-row { display:flex; gap:7px; align-items:center; flex-wrap:wrap; }
+    .share-btn { display:inline-flex; align-items:center; gap:5px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:6px 11px; font-size:0.74rem; font-weight:500; font-family:var(--font); color:var(--text-muted); cursor:pointer; transition:all 0.15s; text-decoration:none; }
+    .share-btn:hover { border-color:var(--accent); color:var(--accent); text-decoration:none; }
+    .share-btn.copied { border-color:var(--up); color:var(--up); }
+
+    .result-url { font-size:0.8rem; color:var(--text-muted); margin:8px 0 11px; word-break:break-all; }
+    .result-summary { font-size:0.87rem; color:var(--text); background:var(--surface-2); border:1px solid var(--border-soft); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:12px; line-height:1.55; }
+    .result-meta { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px; }
+    .meta-chip { background:var(--surface-2); border:1px solid var(--border); border-radius:6px; padding:4px 9px; font-size:0.72rem; color:var(--text-muted); }
+    .meta-chip strong { color:var(--text); }
+
+    /* ── VOTE ── */
+    .vote-section { border-top:1px solid var(--border-soft); padding-top:13px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .vote-label { font-size:0.78rem; color:var(--text-muted); }
+    .vote-btn { display:inline-flex; align-items:center; gap:6px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:6px 12px; font-size:0.78rem; font-family:var(--font); color:var(--text-muted); cursor:pointer; transition:all 0.15s; }
+    .vote-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .vote-btn.active { background:var(--accent-dim); border-color:var(--accent); color:var(--accent); }
+    .vote-count { font-weight:600; }
+    .vote-crowd { font-size:0.72rem; color:var(--text-faint); margin-left:auto; }
+
+    /* ── SPINNER ── */
+    .checking-state { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px 22px; display:flex; align-items:center; gap:16px; animation:slideUp 0.2s ease; }
+    .spinner { width:20px; height:20px; border:2.5px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.7s linear infinite; flex-shrink:0; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .checking-text { font-size:0.87rem; color:var(--text-muted); }
+    .checking-text strong { display:block; color:var(--text); font-size:0.92rem; margin-bottom:2px; }
+
+    /* ── WATCHLIST ── */
+    .watchlist-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px 22px; margin-bottom:20px; animation:slideUp 0.32s ease; }
+    .watchlist-card h3 { font-size:0.87rem; font-weight:600; margin-bottom:5px; }
+    .watchlist-card p { font-size:0.78rem; color:var(--text-muted); margin-bottom:11px; }
+    .email-row { display:flex; gap:8px; }
+    .email-row input { flex:1; background:var(--bg); border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:10px 14px; font-size:0.83rem; font-family:var(--font); color:var(--text); outline:none; transition:border-color 0.15s; }
+    .email-row input:focus { border-color:var(--accent); }
+    .email-row input::placeholder { color:var(--text-faint); }
+    .btn-secondary { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 17px; font-size:0.8rem; font-weight:600; font-family:var(--font); color:var(--text); cursor:pointer; white-space:nowrap; transition:all 0.15s; }
+    .btn-secondary:hover { border-color:var(--accent); color:var(--accent); }
+    .email-confirm { margin-top:9px; font-size:0.76rem; color:var(--up); display:none; }
+
+    /* ── MID-PAGE AD ── */
+    .ad-mid { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px; margin-bottom:20px; text-align:center; display:none; }
+    .ad-mid .ad-inner { height:90px; background:var(--surface-2); border:1px dashed var(--border); border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; color:var(--text-faint); font-size:0.73rem; }
+    /* ↓↓↓ SWAP ad-inner WITH YOUR ADSENSE RESPONSIVE CODE ↓↓↓ */
+
+    /* ── VPN BANNER ── */
+    .vpn-cta { display:none; align-items:center; gap:16px; background:linear-gradient(135deg,#1a1030 0%,#111118 100%); border:1px solid rgba(124,111,247,0.22); border-radius:var(--radius); padding:16px 20px; text-decoration:none; margin-bottom:20px; transition:border-color 0.2s; }
+    .vpn-cta.visible { display:flex; animation:slideUp 0.3s ease; }
+    .vpn-cta:hover { border-color:var(--accent); text-decoration:none; }
+    .vpn-icon { font-size:1.7rem; flex-shrink:0; }
+    .vpn-text strong { display:block; font-size:0.86rem; font-weight:600; color:var(--text); margin-bottom:2px; }
+    .vpn-text span { font-size:0.73rem; color:var(--text-muted); }
+    .vpn-badge { margin-left:auto; background:var(--accent-dim); border:1px solid rgba(124,111,247,0.28); border-radius:6px; padding:4px 10px; font-size:0.7rem; font-weight:600; color:var(--accent); white-space:nowrap; flex-shrink:0; }
+    /* ↑↑↑ REPLACE href="#" ON .vpn-cta WITH YOUR VPN AFFILIATE LINK ↑↑↑ */
+
+    /* ── HISTORY ── */
+    .history-section { margin-bottom:24px; }
+    .history-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+    .history-header h2 { font-size:0.71rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); }
+    .history-clear { font-size:0.71rem; color:var(--text-faint); background:none; border:none; cursor:pointer; font-family:var(--font); }
+    .history-clear:hover { color:var(--down); }
+    .history-list { display:flex; flex-direction:column; gap:6px; }
+    .history-item { display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 14px; cursor:pointer; transition:border-color 0.15s; animation:slideUp 0.2s ease; }
+    .history-item:hover { border-color:var(--accent); }
+    .h-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .history-item.up   .h-dot { background:var(--up); }
+    .history-item.down .h-dot { background:var(--down); }
+    .history-item.warn .h-dot { background:var(--warn); }
+    .h-url { flex:1; font-size:0.81rem; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .h-sparkline { flex-shrink:0; }
+    .h-status { font-size:0.77rem; font-weight:600; }
+    .history-item.up   .h-status { color:var(--up); }
+    .history-item.down .h-status { color:var(--down); }
+    .history-item.warn .h-status { color:var(--warn); }
+    .h-time { font-size:0.7rem; color:var(--text-faint); white-space:nowrap; }
+    .h-recheck { font-size:0.68rem; color:var(--text-faint); background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:3px 8px; cursor:pointer; transition:all 0.15s; flex-shrink:0; }
+    .h-recheck:hover { border-color:var(--accent); color:var(--accent); }
+
+    /* ── ABOUT / FAQ ── */
+    .about-section { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px; margin-bottom:24px; }
+    .about-section h2 { font-size:1rem; font-weight:700; margin-bottom:10px; color:var(--text); }
+    .about-section p { font-size:0.82rem; color:var(--text-muted); margin-bottom:10px; line-height:1.65; }
+    .about-section p:last-child { margin-bottom:0; }
+    .faq-item { margin-bottom:14px; }
+    .faq-item strong { display:block; font-size:0.84rem; color:var(--text); margin-bottom:4px; }
+    .faq-item p { font-size:0.8rem; color:var(--text-muted); line-height:1.6; margin:0; }
+
+    /* ── LIVE STATUS BOARD ── */
+    .status-board { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+    .status-board-header { display:flex; align-items:center; justify-content:space-between; padding:12px 14px 10px; border-bottom:1px solid var(--border); }
+    .status-board-title { display:flex; align-items:center; gap:8px; }
+    .status-board-title span { font-size:0.71rem; font-weight:700; text-transform:uppercase; letter-spacing:0.09em; color:var(--text-muted); }
+    .live-badge { display:flex; align-items:center; gap:5px; background:rgba(34,197,94,0.12); border:1px solid rgba(34,197,94,0.25); border-radius:20px; padding:2px 8px; }
+    .live-pulse { width:7px; height:7px; border-radius:50%; background:var(--up); animation:livePulse 1.6s ease-in-out infinite; flex-shrink:0; }
+    @keyframes livePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.75)} }
+    .live-badge span { font-size:0.62rem; font-weight:700; letter-spacing:0.1em; color:var(--up); }
+    .sb-refresh-btn { background:none; border:1px solid var(--border); border-radius:6px; color:var(--text-faint); font-size:0.68rem; padding:3px 8px; cursor:pointer; font-family:var(--font); transition:all 0.15s; line-height:1.4; }
+    .sb-refresh-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .sb-refresh-btn:disabled { opacity:0.4; cursor:default; }
+    .status-board-list { display:flex; flex-direction:column; }
+    .sb-item { display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.12s; text-decoration:none; }
+    .sb-item:last-child { border-bottom:none; }
+    .sb-item:hover { background:var(--surface-2); }
+    .sb-item.sb-down { background:rgba(239,68,68,0.04); }
+    .sb-indicator { width:9px; height:9px; border-radius:50%; flex-shrink:0; transition:background 0.3s; }
+    .sb-indicator.up   { background:var(--up); box-shadow:0 0 6px rgba(34,197,94,0.4); }
+    .sb-indicator.down { background:var(--down); box-shadow:0 0 6px rgba(239,68,68,0.4); }
+    .sb-indicator.checking { background:var(--border); animation:sbPulse 1s ease-in-out infinite; }
+    @keyframes sbPulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .sb-name { flex:1; font-size:0.8rem; color:var(--text-muted); font-weight:500; }
+    .sb-item.sb-down .sb-name { color:var(--text); }
+    .sb-stat { font-size:0.7rem; color:var(--text-faint); white-space:nowrap; }
+    .sb-stat.down-label { color:var(--down); font-weight:700; font-size:0.68rem; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); border-radius:4px; padding:1px 6px; }
+    .sb-footer { padding:7px 14px; text-align:right; }
+    .sb-footer span { font-size:0.63rem; color:var(--text-faint); }
+
+    /* ── SIDEBAR TIPS ── */
+    .sidebar-tips { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; }
+    .sidebar-tips h3 { font-size:0.71rem; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-faint); margin-bottom:12px; }
+    .tip-item { display:flex; gap:10px; margin-bottom:12px; font-size:0.78rem; }
+    .tip-item:last-child { margin-bottom:0; }
+    .tip-icon { font-size:0.94rem; flex-shrink:0; margin-top:1px; }
+    .tip-item p { color:var(--text-muted); line-height:1.5; }
+    .tip-item strong { color:var(--text); }
+
+    /* ── FOOTER ── */
+    footer { border-top:1px solid var(--border); padding:24px 20px; text-align:center; font-size:0.76rem; color:var(--text-faint); max-width:1100px; margin:0 auto; }
+    footer a { color:var(--text-muted); }
+    footer a:hover { color:var(--accent); }
+    .footer-links { display:flex; justify-content:center; gap:20px; flex-wrap:wrap; margin-top:8px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .page-wrap { grid-template-columns:1fr; padding:16px 14px 50px; }
+      .main-col { padding-right:0; }
+      .sidebar { position:static; }
+      .hero { padding:28px 0 22px; }
+      .hero h1 { font-size:1.8rem; }
+      .input-row { flex-direction:column; }
+      .btn-primary { width:100%; }
+      .ad-top-banner { display:none; }
+      .result-top { flex-direction:column; }
+      .share-row { margin-top:8px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <a class="topnav-brand" href="/" onclick="clearAll();return false;" title="Home / Clear all">
+    <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="32" rx="8" fill="#7c6ff7"/>
+      <circle cx="16" cy="16" r="7" stroke="white" stroke-width="2.5" fill="none"/>
+      <line x1="16" y1="9" x2="16" y2="17" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="16" cy="21" r="1.5" fill="white"/>
+    </svg>
+    IsItGoneDown<span class="tn-dot">.com</span>
+  </a>
+  <div class="topnav-actions"></div>
+</nav>
+
+<!-- TOP BANNER AD (728x90) -->
+<div class="ad-top-banner">
+  <div class="ad-inner">Advertisement · 728×90 — swap this div with your AdSense code</div>
+</div>
+
+<div class="page-wrap">
+<main class="main-col">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-badge">Live global checker</div>
+    <h1>Is It <span class="accent">Gone Down</span>?</h1>
+    <p>Check if any website is down for everyone, or just you — instantly.</p>
+    <button class="hero-clear-btn" id="hero-clear-btn" onclick="clearAll()" style="display:none" title="Clear all searches and start fresh">
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><line x1="1" y1="1" x2="10" y2="10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="10" y1="1" x2="1" y2="10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      Clear all
+    </button>
+  </header>
+
+  <!-- CHECK CARD -->
+  <div class="check-card">
+    <div class="check-tabs">
+      <button class="check-tab active" onclick="switchTab('single')">🔍 Single check</button>
+      <button class="check-tab" onclick="switchTab('bulk')">📋 Bulk check (up to 5)</button>
+    </div>
+    <div class="check-body">
+
+      <div id="single-panel" class="active">
+        <div class="input-row">
+          <input type="text" id="urlInput" placeholder="Enter a URL — e.g. google.com"
+            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+          <button class="btn-primary" id="checkBtn" onclick="startCheck()">Check it</button>
+        </div>
+        <p class="check-hint">Quick: <span onclick="quickCheck('youtube.com')">YouTube</span> · <span onclick="quickCheck('twitter.com')">X/Twitter</span> · <span onclick="quickCheck('instagram.com')">Instagram</span> · <span onclick="quickCheck('netflix.com')">Netflix</span> · <span onclick="quickCheck('github.com')">GitHub</span></p>
+      </div>
+
+      <div id="bulk-panel">
+        <div class="bulk-inputs">
+          <div class="bulk-row"><span class="bulk-num">1</span><input type="text" class="bulk-input" placeholder="First URL — e.g. youtube.com"/></div>
+          <div class="bulk-row"><span class="bulk-num">2</span><input type="text" class="bulk-input" placeholder="Second URL (optional)"/></div>
+          <div class="bulk-row"><span class="bulk-num">3</span><input type="text" class="bulk-input" placeholder="Third URL (optional)"/></div>
+          <div class="bulk-row"><span class="bulk-num">4</span><input type="text" class="bulk-input" placeholder="Fourth URL (optional)"/></div>
+          <div class="bulk-row"><span class="bulk-num">5</span><input type="text" class="bulk-input" placeholder="Fifth URL (optional)"/></div>
+        </div>
+        <button class="btn-primary" id="bulkBtn" onclick="startBulkCheck()">Check all</button>
+        <p class="check-hint" style="margin-top:10px">All checked in parallel. Results appear below.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- POPULAR SITES -->
+  <div class="popular-section">
+    <h2>Popular sites to check</h2>
+    <div class="popular-grid">
+      <button class="pop-btn" onclick="quickCheck('youtube.com')">▶️ YouTube</button>
+      <button class="pop-btn" onclick="quickCheck('tiktok.com')">🎵 TikTok</button>
+      <button class="pop-btn" onclick="quickCheck('instagram.com')">📸 Instagram</button>
+      <button class="pop-btn" onclick="quickCheck('twitter.com')">𝕏 Twitter/X</button>
+      <button class="pop-btn" onclick="quickCheck('facebook.com')">👤 Facebook</button>
+      <button class="pop-btn" onclick="quickCheck('netflix.com')">🎬 Netflix</button>
+      <button class="pop-btn" onclick="quickCheck('reddit.com')">🤖 Reddit</button>
+      <button class="pop-btn" onclick="quickCheck('github.com')">🐙 GitHub</button>
+      <button class="pop-btn" onclick="quickCheck('spotify.com')">🎧 Spotify</button>
+      <button class="pop-btn" onclick="quickCheck('discord.com')">💬 Discord</button>
+      <button class="pop-btn" onclick="quickCheck('whatsapp.com')">💚 WhatsApp</button>
+      <button class="pop-btn" onclick="quickCheck('amazon.com')">📦 Amazon</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="result-area"></div>
+  <div id="bulk-result-area"></div>
+
+  <!-- WATCHLIST -->
+  <div id="watchlist-area"></div>
+
+  <!-- MID-PAGE AD -->
+  <div class="ad-mid" id="ad-mid">
+    <div class="ad-label">Advertisement</div>
+    <div class="ad-inner">Responsive Ad — swap this div with your AdSense code</div>
+  </div>
+
+  <!-- VPN AFFILIATE BANNER — replace href="#" with your link -->
+  <a href="#" class="vpn-cta" id="vpn-banner" target="_blank" rel="noopener noreferrer nofollow">
+    <div class="vpn-icon">🛡️</div>
+    <div class="vpn-text">
+      <strong>Blocked or down just for you? A VPN can help.</strong>
+      <span>Bypass ISP blocks, geo-restrictions, and network filters. Try free.</span>
+    </div>
+    <div class="vpn-badge">Try free →</div>
+  </a>
+
+  <!-- HISTORY -->
+  <div class="history-section" id="history-section" style="display:none">
+    <div class="history-header">
+      <h2>Recent checks</h2>
+      <button class="history-clear" onclick="clearHistory()">Clear history</button>
+    </div>
+    <div class="history-list" id="history-list"></div>
+  </div>
+
+  <!-- ABOUT / FAQ -->
+  <div class="about-section" id="about">
+    <h2>About IsItGoneDown.com</h2>
+    <p>IsItGoneDown.com is a free tool that checks whether a website is genuinely down for everyone, or whether the issue is on your side. We test each URL from a server-side proxy (global reachability) and directly from your browser (local reachability) to give you the most accurate result possible.</p>
+    <p>No account required. No data sold. Your check history is stored only in your own browser — we never see it.</p>
+    <div style="margin-top:18px">
+      <div class="faq-item">
+        <strong>How does the check work?</strong>
+        <p>We send a request through the <code style="font-size:0.77rem;color:var(--accent)">allorigins.win</code> proxy — a third-party server-side service — to test global reachability. We also run a direct browser fetch to test your local connection. Together these give us: down for everyone, down just for you, or partially reachable.</p>
+      </div>
+      <div class="faq-item">
+        <strong>What if a site is up globally but down for me?</strong>
+        <p>The issue is likely your ISP, a firewall, DNS, or a geographic block. Try clearing your cache, flushing DNS (<code style="font-size:0.77rem;color:var(--accent)">ipconfig /flushdns</code> on Windows), or using a VPN to route around the issue.</p>
+      </div>
+      <div class="faq-item">
+        <strong>Is my data private?</strong>
+        <p>Yes. Your check history, votes, and any email you enter are stored only in your browser's localStorage. We don't log or store any of it on our servers.</p>
+      </div>
+      <div class="faq-item">
+        <strong>Contact</strong>
+        <p>Questions, feedback, or partnerships: <a href="mailto:hello@isitgonedown.com">hello@isitgonedown.com</a></p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+
+  <!-- LIVE STATUS BOARD -->
+  <div class="status-board">
+    <div class="status-board-header">
+      <div class="status-board-title">
+        <div class="live-badge"><div class="live-pulse"></div><span>Live</span></div>
+        <span>Popular Sites</span>
+      </div>
+      <button class="sb-refresh-btn" id="sb-refresh-btn" onclick="refreshStatusBoard()">↻ Refresh</button>
+    </div>
+    <div class="status-board-list" id="sb-list">
+      <!-- populated by JS -->
+    </div>
+    <div class="sb-footer"><span id="sb-updated">Checking now…</span></div>
+  </div>
+
+  <div class="ad-sidebar">
+    <div class="ad-label">Advertisement</div>
+    <div class="ad-inner">300×250 — swap with AdSense code</div>
+  </div>
+  <div class="sidebar-tips">
+    <h3>How it works</h3>
+    <div class="tip-item"><div class="tip-icon">🌐</div><p><strong>Global test</strong> — checks via a server proxy, not just your browser.</p></div>
+    <div class="tip-item"><div class="tip-icon">📡</div><p><strong>Local test</strong> — also checks directly from your device to spot network issues.</p></div>
+    <div class="tip-item"><div class="tip-icon">👥</div><p><strong>Crowd reports</strong> — see if others are experiencing the same problem.</p></div>
+    <div class="tip-item"><div class="tip-icon">📬</div><p><strong>Get notified</strong> — enter your email when a site is down for an alert when it returns.</p></div>
+    <div class="tip-item"><div class="tip-icon">🔗</div><p><strong>Deep link</strong> — share a check: <code style="font-size:0.69rem;color:var(--accent)">?url=example.com</code></p></div>
+  </div>
+</aside>
+</div>
+
+<footer>
+  <p>© 2025 IsItGoneDown.com — Free website down checker. No signup. No tracking.</p>
+  <div class="footer-links">
+    <a href="#about">About</a>
+    <a href="mailto:hello@isitgonedown.com">Contact</a>
+    <a href="#" onclick="clearHistory();return false;">Clear my data</a>
+  </div>
+</footer>
+
+<script>
+const LS_HISTORY   = 'isitgonedown_history';
+const LS_VOTES     = 'isitgonedown_votes';
+const LS_WATCHLIST = 'isitgonedown_watchlist';
+const VOTE_TTL_MS  = 2 * 60 * 60 * 1000;
+const MAX_HISTORY  = 8;
+
+function normalise(r) {
+  r = r.trim();
+  if (!r) return null;
+  if (!/^https?:\/\//i.test(r)) r = 'https://' + r;
+  return r;
+}
+function displayUrl(r) { return r.trim().replace(/^https?:\/\//i,'').replace(/\/$/,''); }
+function timeNow() { return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+function bucketKey(url) { return 'v_'+url+'_'+Math.floor(Date.now()/VOTE_TTL_MS); }
+
+function switchTab(tab) {
+  document.querySelectorAll('.check-tab').forEach((t,i)=>{
+    t.classList.toggle('active',(i===0&&tab==='single')||(i===1&&tab==='bulk'));
+  });
+  document.getElementById('single-panel').classList.toggle('active',tab==='single');
+  document.getElementById('bulk-panel').classList.toggle('active',tab==='bulk');
+}
+
+function quickCheck(domain) {
+  switchTab('single');
+  document.getElementById('urlInput').value = domain;
+  startCheck();
+}
+
+document.getElementById('urlInput').addEventListener('keydown', e => { if(e.key==='Enter') startCheck(); });
+
+async function doCheck(rawInput) {
+  const url = normalise(rawInput);
+  if (!url) return null;
+  const start = Date.now();
+  let proxyOk=false, localOk=false, httpCode=null;
+
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(()=>ctrl.abort(), 9000);
+    const r = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}&_=${Date.now()}`,{signal:ctrl.signal,cache:'no-store'});
+    clearTimeout(t);
+    const d = await r.json();
+    httpCode = d.status?.http_code ?? null;
+    proxyOk = (httpCode&&httpCode>0&&httpCode<600) ? (httpCode<400||httpCode===403||httpCode===401) : !!d.contents;
+    if (!httpCode && d.contents) httpCode = 200;
+  } catch { proxyOk=false; }
+
+  try {
+    const ctrl2 = new AbortController();
+    const t2 = setTimeout(()=>ctrl2.abort(),5000);
+    await fetch(url,{method:'HEAD',mode:'no-cors',signal:ctrl2.signal,cache:'no-store'});
+    clearTimeout(t2);
+    localOk=true;
+  } catch { localOk=false; }
+
+  const elapsed = Date.now()-start;
+  let status, summary;
+  const dUrl = displayUrl(rawInput);
+
+  if (localOk)                  { status='up';   summary=`✓ <strong>${dUrl}</strong> is up and reachable.`; }
+  else if (!localOk&&proxyOk)  { status='warn'; summary=`⚠ <strong>${dUrl}</strong> is up globally but unreachable from your network — could be your ISP, a firewall, or a VPN issue.`; }
+  else                          { status='down'; summary=`✗ It's not just you — <strong>${dUrl}</strong> appears to be DOWN for everyone right now.`; }
+
+  return {url, raw:rawInput, dUrl, status, summary, httpCode, elapsed, ts:timeNow(), proxyOk, localOk};
+}
+
+async function startCheck() {
+  const raw = document.getElementById('urlInput').value;
+  if (!raw.trim()) return;
+  const btn = document.getElementById('checkBtn');
+  btn.disabled=true; btn.textContent='Checking…';
+  document.getElementById('vpn-banner').classList.remove('visible');
+  document.getElementById('ad-mid').style.display='none';
+  document.getElementById('watchlist-area').innerHTML='';
+  document.getElementById('result-area').innerHTML=spinnerHTML(`Checking ${displayUrl(raw)}…`,'Testing global reachability…');
+
+  const res = await doCheck(raw);
+  if (!res) { btn.disabled=false; btn.textContent='Check it'; return; }
+
+  document.getElementById('result-area').innerHTML = buildCard(res);
+  showClearBtn();
+  renderWatchlist(res);
+  if (res.status!=='up') document.getElementById('vpn-banner').classList.add('visible');
+  document.getElementById('ad-mid').style.display='block';
+  saveHistory(res);
+  renderHistory();
+  btn.disabled=false; btn.textContent='Check it';
+}
+
+async function startBulkCheck() {
+  const inputs = [...document.querySelectorAll('.bulk-input')].map(i=>i.value.trim()).filter(Boolean);
+  if (!inputs.length) return;
+  const btn = document.getElementById('bulkBtn');
+  btn.disabled=true; btn.textContent='Checking…';
+  document.getElementById('bulk-result-area').innerHTML =
+    inputs.map((_,i)=>`<div id="bres-${i}">${spinnerHTML(`Checking ${displayUrl(inputs[i])}…`,'')}</div>`).join('');
+  document.getElementById('ad-mid').style.display='block';
+
+  const results = await Promise.all(inputs.map(doCheck));
+  results.forEach((res,i) => {
+    if (res) { document.getElementById(`bres-${i}`).innerHTML=buildCard(res); saveHistory(res); }
+  });
+  renderHistory();
+  showClearBtn();
+  btn.disabled=false; btn.textContent='Check all';
+}
+
+function buildCard(res) {
+  const votes = loadVotes(res.url);
+  const shareUrl = encodeURIComponent(location.origin+location.pathname+'?url='+res.dUrl);
+  const tweet    = encodeURIComponent(`${res.dUrl} is ${res.status==='up'?'UP ✓':'DOWN ✗'} right now — check it: `);
+  const labels   = {up:'✓ Site is UP', down:'✗ Site is DOWN', warn:'⚠ Partially reachable'};
+  const safeD    = res.dUrl.replace(/'/g,"\\'");
+  const safeU    = encodeURIComponent(res.url);
+
+  return `<div class="result-card ${res.status}">
+    <div class="result-bar ${res.status}"></div>
+    <div class="result-body">
+      <div class="result-top">
+        <div>
+          <div class="result-status-row ${res.status}">
+            <div class="status-dot"></div>
+            <div class="status-label">${labels[res.status]}</div>
+          </div>
+          <div class="result-url">${res.dUrl}</div>
+        </div>
+        <div class="share-row">
+          <a class="share-btn" href="https://twitter.com/intent/tweet?text=${tweet}&url=${shareUrl}" target="_blank" rel="noopener">𝕏 Share</a>
+          <button class="share-btn" onclick="copyLink('${safeD}',this)">🔗 Copy link</button>
+        </div>
+      </div>
+      <div class="result-summary">${res.summary}</div>
+      <div class="result-meta">
+        <div class="meta-chip"><strong>${res.httpCode?'HTTP '+res.httpCode:res.localOk?'Reachable':'No response'}</strong></div>
+        <div class="meta-chip">Response: <strong>${res.elapsed}ms</strong></div>
+        <div class="meta-chip">At: <strong>${res.ts}</strong></div>
+        <div class="meta-chip">Proxy: <strong>${res.proxyOk?'✓ Online':'✗ Offline'}</strong></div>
+        <div class="meta-chip">Your network: <strong>${res.localOk?'✓ Reachable':'✗ Unreachable'}</strong></div>
+      </div>
+      <div class="vote-section">
+        <span class="vote-label">Is this affecting you too?</span>
+        <button class="vote-btn ${votes.myVote==='down'?'active':''}" id="vd-${safeD}" onclick="castVote('${safeU}','down','${safeD}')">✗ Down for me <span class="vote-count" id="vc-down-${safeD}">${votes.downCount}</span></button>
+        <button class="vote-btn ${votes.myVote==='up'?'active':''}"   id="vu-${safeD}" onclick="castVote('${safeU}','up','${safeD}')">✓ Working for me <span class="vote-count" id="vc-up-${safeD}">${votes.upCount}</span></button>
+        <span class="vote-crowd" id="vs-${safeD}">${renderVoteSummary(votes)}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function spinnerHTML(title,sub) {
+  return `<div class="checking-state"><div class="spinner"></div><div class="checking-text"><strong>${title}</strong>${sub}</div></div>`;
+}
+
+function copyLink(dUrl, btn) {
+  const link = location.origin+location.pathname+'?url='+dUrl;
+  navigator.clipboard.writeText(link).then(()=>{
+    btn.textContent='✓ Copied!'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='🔗 Copy link'; btn.classList.remove('copied'); },2000);
+  }).catch(()=>{ prompt('Copy this link:',link); });
+}
+
+function loadVotes(url) {
+  try {
+    const all=JSON.parse(localStorage.getItem(LS_VOTES)||'{}');
+    const d=all[bucketKey(url)]||{down:0,up:0,mine:null};
+    return {downCount:d.down,upCount:d.up,myVote:d.mine};
+  } catch { return {downCount:0,upCount:0,myVote:null}; }
+}
+
+function castVote(encUrl,vote,dUrl) {
+  const url=decodeURIComponent(encUrl), key=bucketKey(url);
+  try {
+    const all=JSON.parse(localStorage.getItem(LS_VOTES)||'{}');
+    const d=all[key]||{down:0,up:0,mine:null};
+    if(d.mine===vote){d[vote]=Math.max(0,d[vote]-1);d.mine=null;}
+    else{if(d.mine)d[d.mine]=Math.max(0,d[d.mine]-1);d[vote]++;d.mine=vote;}
+    all[key]=d; localStorage.setItem(LS_VOTES,JSON.stringify(all));
+    document.getElementById(`vc-down-${dUrl}`).textContent=d.down;
+    document.getElementById(`vc-up-${dUrl}`).textContent=d.up;
+    document.getElementById(`vd-${dUrl}`).classList.toggle('active',d.mine==='down');
+    document.getElementById(`vu-${dUrl}`).classList.toggle('active',d.mine==='up');
+    document.getElementById(`vs-${dUrl}`).textContent=renderVoteSummary({downCount:d.down,upCount:d.up});
+  } catch(e){console.warn(e);}
+}
+
+function renderVoteSummary({downCount,upCount}) {
+  const t=downCount+upCount; if(!t) return '';
+  return `${t} report${t!==1?'s':''} · ${Math.round(downCount/t*100)}% say down`;
+}
+
+function renderWatchlist(res) {
+  const area=document.getElementById('watchlist-area');
+  const wl=JSON.parse(localStorage.getItem(LS_WATCHLIST)||'{}');
+  const ex=wl[res.url];
+  if(ex){
+    area.innerHTML=`<div class="watchlist-card"><h3>📬 Watching ${res.dUrl}</h3><p>We'll email <strong>${ex}</strong> when status changes. <span style="cursor:pointer;color:var(--accent)" onclick="removeWatch('${encodeURIComponent(res.url)}')">Remove</span></p></div>`;
+    return;
+  }
+  const eD=encodeURIComponent(res.dUrl), eU=encodeURIComponent(res.url);
+  area.innerHTML=`<div class="watchlist-card">
+    <h3>📬 Get notified when ${res.dUrl} comes back up</h3>
+    <p>Enter your email and we'll alert you when the status changes. No spam.</p>
+    <div class="email-row">
+      <input type="email" id="emailInput" placeholder="your@email.com"/>
+      <button class="btn-secondary" onclick="submitEmail('${eU}','${eD}')">Notify me</button>
+    </div>
+    <p class="email-confirm" id="email-confirm">✓ You're on the list — we'll email you when ${res.dUrl} changes.</p>
+  </div>`;
+}
+
+function submitEmail(eU,eD) {
+  const url=decodeURIComponent(eU);
+  const email=(document.getElementById('emailInput')?.value||'').trim();
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){document.getElementById('emailInput')?.focus();return;}
+  try{const wl=JSON.parse(localStorage.getItem(LS_WATCHLIST)||'{}');wl[url]=email;localStorage.setItem(LS_WATCHLIST,JSON.stringify(wl));}catch(e){}
+  const c=document.getElementById('email-confirm');if(c)c.style.display='block';
+  const r=document.querySelector('.email-row');if(r)r.style.opacity='0.4';
+}
+
+function removeWatch(eU) {
+  try{const wl=JSON.parse(localStorage.getItem(LS_WATCHLIST)||'{}');delete wl[decodeURIComponent(eU)];localStorage.setItem(LS_WATCHLIST,JSON.stringify(wl));}catch(e){}
+  document.getElementById('watchlist-area').innerHTML='';
+}
+
+function loadHistory() { try{return JSON.parse(localStorage.getItem(LS_HISTORY)||'[]');}catch{return[];} }
+
+function saveHistory(e) {
+  try{
+    let h=loadHistory().filter(x=>x.dUrl!==e.dUrl);
+    h.unshift({dUrl:e.dUrl,url:e.url,status:e.status,httpCode:e.httpCode,elapsed:e.elapsed,ts:e.ts});
+    localStorage.setItem(LS_HISTORY,JSON.stringify(h.slice(0,MAX_HISTORY)));
+  }catch(err){}
+}
+
+function clearHistory() { localStorage.removeItem(LS_HISTORY); renderHistory(); }
+
+function buildSparkline(history) {
+  if(!history.length) return '';
+  const dots=history.slice(0,5);
+  const w=12, svgW=dots.length*w+4;
+  const circles=dots.map((h,i)=>{
+    const col=h.status==='up'?'%2322c55e':h.status==='down'?'%23ef4444':'%23f59e0b';
+    return `<circle cx="${i*w+6}" cy="8" r="3.5" fill="${h.status==='up'?'#22c55e':h.status==='down'?'#ef4444':'#f59e0b'}" opacity="0.85"/>`;
+  }).join('');
+  return `<svg class="h-sparkline" width="${svgW}" height="16" viewBox="0 0 ${svgW} 16" title="Last ${dots.length} checks">${circles}</svg>`;
+}
+
+function renderHistory() {
+  const h=loadHistory();
+  const section=document.getElementById('history-section');
+  const list=document.getElementById('history-list');
+  if(!h.length){section.style.display='none';return;}
+  section.style.display='block';
+  list.innerHTML=h.map(e=>`
+    <div class="history-item ${e.status}" onclick="quickCheck('${e.dUrl}')">
+      <div class="h-dot"></div>
+      <span class="h-url">${e.dUrl}</span>
+      ${buildSparkline(h)}
+      <span class="h-status">${e.status==='up'?'UP':e.status==='down'?'DOWN':'PARTIAL'}</span>
+      <span class="h-time">${e.ts}</span>
+      <span class="h-recheck" onclick="event.stopPropagation();quickCheck('${e.dUrl}')">↻</span>
+    </div>`).join('');
+}
+
+(function(){
+  const p=new URLSearchParams(location.search), u=p.get('url');
+  if(u){document.getElementById('urlInput').value=u;setTimeout(startCheck,450);}
+})();
+
+renderHistory();
+
+// ── CLEAR ALL ──
+function clearAll() {
+  document.getElementById('urlInput').value = '';
+  document.querySelectorAll('.bulk-input').forEach(i => i.value = '');
+  document.getElementById('result-area').innerHTML = '';
+  document.getElementById('bulk-result-area').innerHTML = '';
+  document.getElementById('watchlist-area').innerHTML = '';
+  document.getElementById('vpn-banner').classList.remove('visible');
+  document.getElementById('ad-mid').style.display = 'none';
+  localStorage.removeItem(LS_HISTORY);
+  renderHistory();
+  const cb = document.getElementById('hero-clear-btn');
+  if (cb) cb.style.display = 'none';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function showClearBtn() {
+  const cb = document.getElementById('hero-clear-btn');
+  if (cb) cb.style.display = 'inline-flex';
+}
+
+// ── BACK TO TOP ──
+window.addEventListener('scroll', () => {
+  const btn = document.getElementById('back-to-top');
+  if (btn) btn.classList.toggle('visible', window.scrollY > 380);
+}, {passive:true});
+
+// ── LIVE STATUS BOARD ──
+const BOARD_SITES = [
+  {name:'YouTube',   url:'https://youtube.com'},
+  {name:'X / Twitter', url:'https://x.com'},
+  {name:'Instagram', url:'https://instagram.com'},
+  {name:'Netflix',   url:'https://netflix.com'},
+  {name:'GitHub',    url:'https://github.com'},
+  {name:'Reddit',    url:'https://reddit.com'},
+  {name:'Discord',   url:'https://discord.com'},
+  {name:'Spotify',   url:'https://spotify.com'},
+  {name:'WhatsApp',  url:'https://web.whatsapp.com'},
+  {name:'Amazon',    url:'https://amazon.com'},
+];
+
+let sbRefreshTimer = null;
+
+async function checkSiteQuick(url) {
+  const start = Date.now();
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(()=>ctrl.abort(), 6000);
+    await fetch(url, {method:'HEAD', mode:'no-cors', signal:ctrl.signal, cache:'no-store'});
+    clearTimeout(t);
+    return {ok:true, elapsed:Date.now()-start};
+  } catch {
+    return {ok:false, elapsed:Date.now()-start};
+  }
+}
+
+function renderBoardSkeleton() {
+  const list = document.getElementById('sb-list');
+  list.innerHTML = BOARD_SITES.map(s=>`
+    <div class="sb-item" id="sb-${s.name.replace(/\W/g,'')}" onclick="quickCheck('${s.url}')">
+      <div class="sb-indicator checking"></div>
+      <span class="sb-name">${s.name}</span>
+      <span class="sb-stat">…</span>
+    </div>`).join('');
+}
+
+async function initStatusBoard() {
+  renderBoardSkeleton();
+  const btn = document.getElementById('sb-refresh-btn');
+  if(btn) btn.disabled = true;
+
+  const checks = BOARD_SITES.map(async s => {
+    const result = await checkSiteQuick(s.url);
+    const id = 'sb-'+s.name.replace(/\W/g,'');
+    const row = document.getElementById(id);
+    if (!row) return;
+    const dot = row.querySelector('.sb-indicator');
+    const stat = row.querySelector('.sb-stat');
+    if (result.ok) {
+      dot.className = 'sb-indicator up';
+      stat.className = 'sb-stat';
+      stat.textContent = result.elapsed+'ms';
+      row.classList.remove('sb-down');
+    } else {
+      dot.className = 'sb-indicator down';
+      stat.className = 'sb-stat down-label';
+      stat.textContent = 'DOWN';
+      row.classList.add('sb-down');
+    }
+  });
+
+  await Promise.all(checks);
+
+  const now = new Date();
+  const t = now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const el = document.getElementById('sb-updated');
+  if(el) el.textContent = 'Updated '+t+' · auto-refreshes every 5 min';
+
+  if(btn) btn.disabled = false;
+
+  clearTimeout(sbRefreshTimer);
+  sbRefreshTimer = setTimeout(initStatusBoard, 5*60*1000);
+}
+
+function refreshStatusBoard() {
+  clearTimeout(sbRefreshTimer);
+  const el = document.getElementById('sb-updated');
+  if(el) el.textContent = 'Refreshing…';
+  initStatusBoard();
+}
+
+initStatusBoard();
+</script>
+
+<!-- BACK TO TOP -->
+<button class="back-to-top" id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top" aria-label="Scroll to top">↑</button>
+
+</body>
+</html>
