@@ -968,8 +968,14 @@ fbAuth.onAuthStateChanged(async (user) => {
   } else {
     userTier = 'free';
     updateAuthUI(null);
+    // Clear cloud-synced data from localStorage on sign out for privacy
+    localStorage.removeItem(LS_HISTORY);
+    localStorage.removeItem(LS_MYSITES);
     renderHistory();
     renderMySites();
+    // Hide clear button since there's nothing to clear
+    const cb = document.getElementById('hero-clear-btn');
+    if (cb) cb.style.display = 'none';
   }
 });
 
