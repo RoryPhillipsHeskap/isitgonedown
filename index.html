@@ -961,7 +961,7 @@ async function checkSubscription(email) {
 }
 
 function goToPro() {
-  const base = 'https://buy.stripe.com/test_14A9AT8KA0gscMMbB33ZK02';
+  const base = 'https://buy.stripe.com/14A9AT8KA0gscMMbB33ZK02';
   const email = currentUser ? currentUser.email : '';
   const url = email ? `${base}?prefilled_email=${encodeURIComponent(email)}` : base;
   window.open(url, '_blank');
