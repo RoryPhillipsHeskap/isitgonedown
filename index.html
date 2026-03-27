@@ -465,6 +465,7 @@
       <div class="user-avatar" id="user-avatar">U</div>
       <span class="user-name" id="user-name"></span>
       <span class="tier-badge free" id="tier-badge">Free</span>
+      <button class="upgrade-btn" id="nav-upgrade-btn" onclick="goToPro()" style="display:none;font-size:0.7rem;padding:4px 10px;">⭐ Upgrade</button>
       <button class="sign-out-btn" onclick="signOutUser()">Sign out</button>
     </div>
   </div>
@@ -950,6 +951,37 @@ const fbDb   = firebase.firestore();
 let currentUser = null;
 let userTier = 'free';
 
+// ── STRIPE SUBSCRIPTION CHECK ──
+async function checkSubscription(email) {
+  try {
+    const res = await fetch(`/.netlify/functions/check-subscription?email=${encodeURIComponent(email)}`);
+    const data = await res.json();
+    return data.isPro === true;
+  } catch(e) { return false; }
+}
+
+function goToPro() {
+  const base = 'https://buy.stripe.com/test_14A9AT8KA0gscMMbB33ZK02';
+  const email = currentUser ? currentUser.email : '';
+  const url = email ? `${base}?prefilled_email=${encodeURIComponent(email)}` : base;
+  window.open(url, '_blank');
+}
+
+// Handle return from successful Stripe payment
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('payment_success') === 'true') {
+    history.replaceState({}, '', '/');
+    setTimeout(() => {
+      const banner = document.createElement('div');
+      banner.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;padding:12px 24px;border-radius:10px;font-weight:700;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);';
+      banner.textContent = '🎉 Welcome to Pro! Your features are now active.';
+      document.body.appendChild(banner);
+      setTimeout(() => banner.remove(), 5000);
+    }, 1000);
+  }
+})();
+
 fbAuth.onAuthStateChanged(async (user) => {
   currentUser = user;
   if (user) {
@@ -961,6 +993,15 @@ fbAuth.onAuthStateChanged(async (user) => {
       } else {
         await profileRef.set({ email:user.email, displayName:user.displayName||user.email, tier:'free', createdAt:firebase.firestore.FieldValue.serverTimestamp() });
         userTier = 'free';
+      }
+      // Verify Pro status with Stripe (catches new subscribers and cancellations)
+      const isPro = await checkSubscription(user.email);
+      if (isPro && userTier !== 'pro') {
+        userTier = 'pro';
+        await profileRef.set({ tier:'pro' }, { merge:true });
+      } else if (!isPro && userTier === 'pro') {
+        userTier = 'free';
+        await profileRef.set({ tier:'free' }, { merge:true });
       }
     } catch(e) { userTier = 'free'; }
     updateAuthUI(user);
@@ -992,6 +1033,8 @@ function updateAuthUI(user) {
     if(userName)  userName.textContent  = name;
     if(userAvatar)userAvatar.textContent = name[0].toUpperCase();
     if(tierBadge) { tierBadge.textContent = userTier==='pro'?'⭐ Pro':'Free'; tierBadge.className='tier-badge '+userTier; }
+    const navUpgrade = document.getElementById('nav-upgrade-btn');
+    if(navUpgrade) navUpgrade.style.display = userTier==='pro' ? 'none' : 'inline-flex';
   } else {
     signInBtn.style.display = 'flex';
     userPill.style.display  = 'none';
@@ -1305,7 +1348,7 @@ initStatusBoard();
       <button class="auth-submit" onclick="handleRegister()">Create free account</button>
       <div class="upgrade-bar">
         <div><strong>⭐ Upgrade to Pro</strong><p>Unlimited monitors, instant alerts, scheduled checks & more</p></div>
-        <button class="upgrade-btn" onclick="hideAuthModal()">Coming soon</button>
+        <button class="upgrade-btn" onclick="goToPro()">Upgrade Now ⭐</button>
       </div>
     </div>
   </div>
