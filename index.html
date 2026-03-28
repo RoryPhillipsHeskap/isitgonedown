@@ -1016,6 +1016,12 @@ fbAuth.onAuthStateChanged(async (user) => {
       } else {
         await profileRef.set({ email:user.email, displayName:user.displayName||user.email, tier:'free', createdAt:firebase.firestore.FieldValue.serverTimestamp() });
         userTier = 'free';
+        // New user — add to Systeme.io mailing list silently
+        fetch('/.netlify/functions/add-subscriber', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: user.email, firstName: user.displayName ? user.displayName.split(' ')[0] : '' })
+        }).catch(() => {});
       }
       // Verify Pro status with Stripe (catches new subscribers and cancellations)
       const isPro = await checkSubscription(user.email);
