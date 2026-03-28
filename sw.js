@@ -18,6 +18,7 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  // Only cache GET requests, skip Netlify functions and external APIs
   if (event.request.method !== 'GET') return;
   if (event.request.url.includes('/.netlify/')) return;
   if (event.request.url.includes('firestore') || event.request.url.includes('firebase')) return;
