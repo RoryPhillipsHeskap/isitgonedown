@@ -673,7 +673,10 @@ const LS_HISTORY   = 'isitgonedown_history';
 const LS_VOTES     = 'isitgonedown_votes';
 const LS_WATCHLIST = 'isitgonedown_watchlist';
 const VOTE_TTL_MS  = 2 * 60 * 60 * 1000;
-const MAX_HISTORY  = 50;
+const MAX_HISTORY_FREE = 10;
+const MAX_HISTORY_PRO  = 500;
+function getMaxHistory() { return userTier === 'pro' ? MAX_HISTORY_PRO : MAX_HISTORY_FREE; }
+const MAX_MYSITES_FREE = 3;
 
 function normalise(r) {
   r = r.trim();
@@ -901,7 +904,7 @@ function saveHistory(e) {
   try{
     let h=loadHistory().filter(x=>x.dUrl!==e.dUrl);
     h.unshift({dUrl:e.dUrl,url:e.url,status:e.status,httpCode:e.httpCode,elapsed:e.elapsed,ts:e.ts});
-    localStorage.setItem(LS_HISTORY,JSON.stringify(h.slice(0,MAX_HISTORY)));
+    localStorage.setItem(LS_HISTORY,JSON.stringify(h.slice(0,getMaxHistory())));
     syncHistoryToCloud();
   }catch(err){}
 }
@@ -934,6 +937,16 @@ function renderHistory() {
       <span class="h-time">${e.ts}</span>
       <span class="h-recheck" onclick="event.stopPropagation();quickCheck('${e.dUrl}')">↻</span>
     </div>`).join('');
+  // Show history limit notice for free users
+  const old = document.getElementById('history-limit-notice');
+  if (old) old.remove();
+  if (userTier !== 'pro' && h.length >= MAX_HISTORY_FREE) {
+    const notice = document.createElement('div');
+    notice.id = 'history-limit-notice';
+    notice.style.cssText = 'text-align:center;padding:10px;font-size:0.78rem;color:var(--text-faint);border-top:1px solid var(--border);margin-top:6px;';
+    notice.innerHTML = `Showing last ${MAX_HISTORY_FREE} checks. <button onclick="goToPro()" style="background:none;border:none;color:#f59e0b;cursor:pointer;font-weight:700;font-family:inherit;font-size:inherit;">⭐ Upgrade to Pro</button> for unlimited history.`;
+    list.after(notice);
+  }
 }
 
 (function(){
@@ -1149,8 +1162,21 @@ function toggleTheme() {
   applyTheme(saved);
 })();
 
+// ── UPGRADE PROMPT ──
+function showUpgradePrompt(message) {
+  const existing = document.getElementById('upgrade-toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.id = 'upgrade-toast';
+  toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid rgba(245,158,11,0.5);color:#e4e4f0;padding:14px 20px;border-radius:12px;font-size:0.84rem;z-index:9999;box-shadow:0 4px 24px rgba(0,0,0,0.5);display:flex;align-items:center;gap:14px;max-width:400px;';
+  toast.innerHTML = `<span>${message}</span><button onclick="goToPro()" style="background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;">⭐ Upgrade</button><button onclick="this.parentElement.remove()" style="background:none;border:none;color:#6b6b80;cursor:pointer;font-size:1rem;padding:0;line-height:1;">✕</button>`;
+  document.body.appendChild(toast);
+  setTimeout(() => { if (toast.parentElement) toast.remove(); }, 7000);
+}
+
 // ── EXPORT HISTORY AS CSV ──
 function exportHistoryCSV() {
+  if (userTier !== 'pro') { showUpgradePrompt('📊 Export CSV is a <strong>Pro feature</strong>. Upgrade to download your full history.'); return; }
   const h = loadHistory();
   if (!h.length) { alert('No history to export yet — run some checks first!'); return; }
   const rows = [['URL','Status','HTTP Code','Response Time (ms)','Checked At']];
@@ -1172,9 +1198,14 @@ function addMySite() {
   const val = input.value.trim();
   if (!val) return;
   const dUrl = displayUrl(val);
-  const sites = loadMySites().filter(s => s !== dUrl);
-  sites.unshift(dUrl);
-  saveMySites(sites.slice(0, 20));
+  const sites = loadMySites();
+  if (userTier !== 'pro' && !sites.includes(dUrl) && sites.length >= MAX_MYSITES_FREE) {
+    showUpgradePrompt(`📌 Free accounts can save up to <strong>${MAX_MYSITES_FREE} sites</strong>. Upgrade to Pro for unlimited My Sites.`);
+    return;
+  }
+  const filtered = sites.filter(s => s !== dUrl);
+  filtered.unshift(dUrl);
+  saveMySites(filtered.slice(0, userTier === 'pro' ? 100 : MAX_MYSITES_FREE));
   input.value = '';
   renderMySites();
   syncMySitesToCloud();
@@ -1190,13 +1221,23 @@ function renderMySites() {
   if (!list) return;
   if (!sites.length) {
     list.innerHTML = '<span class="my-sites-empty">No saved sites yet — add your favourites above</span>';
-    return;
+  } else {
+    list.innerHTML = sites.map(s => `
+      <div class="my-site-pill">
+        <span class="my-site-pill-name" onclick="quickCheck('${s}')" title="Check ${s}">${s}</span>
+        <button class="my-site-pill-remove" onclick="removeMySite('${s}')" title="Remove">×</button>
+      </div>`).join('');
   }
-  list.innerHTML = sites.map(s => `
-    <div class="my-site-pill">
-      <span class="my-site-pill-name" onclick="quickCheck('${s}')" title="Check ${s}">${s}</span>
-      <button class="my-site-pill-remove" onclick="removeMySite('${s}')" title="Remove">×</button>
-    </div>`).join('');
+  // Show limit indicator for free users
+  const limitEl = document.getElementById('mysites-limit');
+  if (limitEl) limitEl.remove();
+  if (userTier !== 'pro') {
+    const indicator = document.createElement('div');
+    indicator.id = 'mysites-limit';
+    indicator.style.cssText = 'font-size:0.72rem;color:var(--text-faint);margin-top:8px;display:flex;align-items:center;justify-content:space-between;';
+    indicator.innerHTML = `<span>${sites.length}/${MAX_MYSITES_FREE} sites used (Free)</span>${sites.length >= MAX_MYSITES_FREE ? `<button onclick="goToPro()" style="font-size:0.7rem;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;border:none;border-radius:5px;padding:3px 9px;cursor:pointer;font-family:inherit;font-weight:700;">⭐ Upgrade</button>` : ''}`;
+    list.after(indicator);
+  }
 }
 renderMySites();
 
