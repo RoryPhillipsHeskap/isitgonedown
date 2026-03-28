@@ -956,8 +956,6 @@ function renderHistory() {
   if(u){document.getElementById('urlInput').value=u;setTimeout(startCheck,450);}
 })();
 
-renderHistory();
-
 // ── FIREBASE AUTH & FIRESTORE ──
 const firebaseConfig = {
   apiKey: "AIzaSyDOqXGscPCleg1cUA1m1WUXEbIqHWWh7b8",
@@ -1046,6 +1044,14 @@ fbAuth.onAuthStateChanged(async (user) => {
     // Hide clear button since there's nothing to clear
     const cb = document.getElementById('hero-clear-btn');
     if (cb) cb.style.display = 'none';
+  }
+});
+
+// Clear guest history from localStorage when tab closes so it never bleeds into next session
+window.addEventListener('beforeunload', () => {
+  if (!currentUser) {
+    localStorage.removeItem(LS_HISTORY);
+    localStorage.removeItem(LS_MYSITES);
   }
 });
 
