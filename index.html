@@ -449,6 +449,43 @@
       .result-top { flex-direction:column; }
       .share-row { margin-top:8px; }
     }
+
+    /* ── LOCKED FEATURE OVERLAYS ── */
+    .locked-feature { position:relative; border-radius:var(--radius); overflow:hidden; min-height:140px; }
+    .fake-history-item { height:42px; background:var(--surface-2); border-radius:8px; margin-bottom:6px; }
+    .locked-overlay { position:absolute; inset:0; background:linear-gradient(to bottom, rgba(10,10,15,0.0) 0%, rgba(10,10,15,0.92) 45%); display:flex; flex-direction:column; align-items:center; justify-content:flex-end; padding:18px; text-align:center; }
+    .locked-overlay .lock-icon { font-size:1.5rem; margin-bottom:6px; }
+    .locked-overlay .lock-title { font-size:0.9rem; font-weight:700; color:var(--text); margin-bottom:4px; }
+    .locked-overlay .lock-sub { font-size:0.78rem; color:var(--text-faint); margin-bottom:12px; line-height:1.4; }
+    .locked-cta-btn { background:linear-gradient(135deg,#7c6ff7,#a855f7); color:#fff; border:none; border-radius:var(--radius-sm); padding:9px 18px; font-size:0.82rem; font-weight:700; cursor:pointer; font-family:var(--font); transition:opacity 0.15s; white-space:nowrap; }
+    .locked-cta-btn:hover { opacity:0.85; }
+    .my-sites-locked { padding:16px; text-align:center; }
+    .my-sites-locked .lock-icon { font-size:1.4rem; display:block; margin-bottom:6px; }
+    .my-sites-locked .lock-title { font-size:0.85rem; font-weight:700; color:var(--text); display:block; margin-bottom:3px; }
+    .my-sites-locked .lock-sub { font-size:0.78rem; color:var(--text-faint); display:block; margin-bottom:12px; }
+
+    /* ── TRIAL NUDGE BANNER ── */
+    .trial-nudge { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--surface); border:1px solid var(--accent); border-radius:var(--radius); padding:12px 16px; display:flex; align-items:center; gap:12px; z-index:900; box-shadow:0 8px 32px rgba(0,0,0,0.45); max-width:520px; width:calc(100% - 32px); animation:nudgeUp 0.3s ease; }
+    @keyframes nudgeUp { from{transform:translateX(-50%) translateY(16px);opacity:0;} to{transform:translateX(-50%) translateY(0);opacity:1;} }
+    .trial-nudge p { font-size:0.8rem; color:var(--text); margin:0; flex:1; line-height:1.4; }
+    .trial-nudge p strong { color:var(--accent); }
+    .trial-nudge-close { background:none; border:none; color:var(--text-faint); cursor:pointer; font-size:1rem; padding:0; line-height:1; flex-shrink:0; }
+
+    /* ── TRIAL MODAL ── */
+    .trial-modal { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); width:100%; max-width:440px; margin:20px; padding:28px 24px; text-align:center; }
+    .trial-badge-pill { display:inline-block; background:linear-gradient(135deg,#f59e0b,#f97316); color:#fff; font-size:0.72rem; font-weight:700; padding:3px 12px; border-radius:20px; margin-bottom:12px; letter-spacing:0.04em; text-transform:uppercase; }
+    .trial-modal h2 { font-size:1.35rem; font-weight:800; margin-bottom:6px; color:var(--text); }
+    .trial-price-note { font-size:0.78rem; color:var(--text-faint); margin-bottom:20px; }
+    .trial-features { list-style:none; padding:0; margin:0 0 20px; text-align:left; }
+    .trial-features li { font-size:0.82rem; color:var(--text); padding:7px 0; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; gap:10px; }
+    .trial-features li:last-child { border-bottom:none; }
+    .trial-features li .tf-check { color:#10b981; font-weight:700; flex-shrink:0; margin-top:1px; }
+    .trial-start-btn { width:100%; background:linear-gradient(135deg,#7c6ff7,#a855f7); color:#fff; border:none; border-radius:var(--radius-sm); padding:13px; font-size:0.95rem; font-weight:700; cursor:pointer; font-family:var(--font); margin-bottom:8px; transition:opacity 0.15s; }
+    .trial-start-btn:hover { opacity:0.88; }
+    .trial-cancel-note { font-size:0.72rem; color:var(--text-faint); margin-bottom:14px; }
+    .trial-no-thanks { background:none; border:none; color:var(--text-faint); font-size:0.78rem; cursor:pointer; font-family:var(--font); text-decoration:underline; display:block; margin:0 auto 14px; }
+    .trial-signin-link { font-size:0.76rem; color:var(--text-faint); }
+    .trial-signin-link button { background:none; border:none; color:var(--accent); cursor:pointer; font-family:var(--font); font-size:inherit; text-decoration:underline; padding:0; }
   </style>
 </head>
 <body>
@@ -468,7 +505,7 @@
     <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
       <span id="theme-icon">☀️</span>
     </button>
-    <button class="sign-in-btn" id="sign-in-btn" onclick="showAuthModal('signin')">Sign in</button>
+    <button class="sign-in-btn" id="sign-in-btn" onclick="showAuthModal()">Sign in</button>
     <div class="user-pill" id="user-pill">
       <div class="user-avatar" id="user-avatar">U</div>
       <span class="user-name" id="user-name"></span>
@@ -503,13 +540,25 @@
     <div class="my-sites-header">
       <h3>⭐ My Sites</h3>
     </div>
-    <div class="my-sites-input-row">
-      <input class="my-sites-input" id="my-sites-input" type="text" placeholder="Add a site — e.g. mywebsite.com" autocomplete="off" spellcheck="false"
-        onkeydown="if(event.key==='Enter')addMySite()"/>
-      <button class="my-sites-add-btn" onclick="addMySite()">+ Add</button>
+    <!-- Guest locked state -->
+    <div id="my-sites-locked" style="display:none;">
+      <div class="my-sites-locked">
+        <span class="lock-icon">🔒</span>
+        <span class="lock-title">Save &amp; monitor your favourite sites</span>
+        <span class="lock-sub">Get instant alerts when they go down</span>
+        <button class="locked-cta-btn" onclick="showTrialModal()">Try Pro free for 14 days →</button>
+      </div>
     </div>
-    <div class="my-sites-list" id="my-sites-list">
-      <span class="my-sites-empty">No saved sites yet — add your favourites above</span>
+    <!-- Logged-in Pro state -->
+    <div id="my-sites-unlocked">
+      <div class="my-sites-input-row">
+        <input class="my-sites-input" id="my-sites-input" type="text" placeholder="Add a site — e.g. mywebsite.com" autocomplete="off" spellcheck="false"
+          onkeydown="if(event.key==='Enter')addMySite()"/>
+        <button class="my-sites-add-btn" onclick="addMySite()">+ Add</button>
+      </div>
+      <div class="my-sites-list" id="my-sites-list">
+        <span class="my-sites-empty">No saved sites yet — add your favourites above</span>
+      </div>
     </div>
   </div>
 
@@ -602,8 +651,8 @@
   <!-- ABOUT / FAQ -->
   <div class="about-section" id="about">
     <h2>About IsItGoneDown.com</h2>
-    <p>IsItGoneDown.com is a free tool that checks whether a website is genuinely down for everyone, or whether the issue is on your side. We test each URL from a server-side proxy (global reachability) and directly from your browser (local reachability) to give you the most accurate result possible.</p>
-    <p>No account required. No data sold. Your check history is stored only in your own browser — we never see it.</p>
+    <p>IsItGoneDown.com checks whether a website is genuinely down for everyone, or whether the issue is on your side. We test each URL from a server-side proxy (global reachability) and directly from your browser (local reachability) to give you the most accurate result possible.</p>
+    <p>Check any URL instantly — no account needed. Pro members get scheduled monitoring, email alerts, unlimited history, and more. Start with a 14-day free trial.</p>
     <div style="margin-top:18px">
       <div class="faq-item">
         <strong>How does the check work?</strong>
@@ -761,6 +810,7 @@ async function startCheck() {
   if (res.status!=='up') document.getElementById('vpn-banner').classList.add('visible');
   document.getElementById('ad-mid').style.display='block';
   saveHistory(res);
+  trackGuestCheck();
   renderHistory();
   btn.disabled=false; btn.textContent='Check it';
 }
@@ -778,6 +828,7 @@ async function startBulkCheck() {
   results.forEach((res,i) => {
     if (res) { document.getElementById(`bres-${i}`).innerHTML=buildCard(res); saveHistory(res); }
   });
+  trackGuestCheck();
   renderHistory();
   showClearBtn();
   btn.disabled=false; btn.textContent='Check all';
@@ -903,6 +954,7 @@ function removeWatch(eU) {
 function loadHistory() { try{return JSON.parse(localStorage.getItem(LS_HISTORY)||'[]');}catch{return[];} }
 
 function saveHistory(e) {
+  if (!currentUser) return; // guests don't save history
   try{
     let h=loadHistory().filter(x=>x.dUrl!==e.dUrl);
     h.unshift({dUrl:e.dUrl,url:e.url,status:e.status,httpCode:e.httpCode,elapsed:e.elapsed,ts:e.ts});
@@ -925,9 +977,31 @@ function buildSparkline(history) {
 }
 
 function renderHistory() {
-  const h=loadHistory();
   const section=document.getElementById('history-section');
   const list=document.getElementById('history-list');
+
+  // Guest locked state — always show a locked placeholder
+  if (!currentUser) {
+    section.style.display='block';
+    const old = document.getElementById('history-limit-notice');
+    if (old) old.remove();
+    list.innerHTML=`
+      <div class="locked-feature">
+        <div class="fake-history-item"></div>
+        <div class="fake-history-item"></div>
+        <div class="fake-history-item" style="opacity:0.35;"></div>
+        <div class="locked-overlay">
+          <span class="lock-icon">🔒</span>
+          <div class="lock-title">Your check history is saved here</div>
+          <div class="lock-sub">Every check you run is logged with timestamps &amp; status — revisit any site in one click.</div>
+          <button class="locked-cta-btn" onclick="showTrialModal()">Try Pro free for 14 days →</button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // Logged-in Pro state
+  const h=loadHistory();
   if(!h.length){section.style.display='none';return;}
   section.style.display='block';
   list.innerHTML=h.map(e=>`
@@ -939,16 +1013,8 @@ function renderHistory() {
       <span class="h-time">${e.ts}</span>
       <span class="h-recheck" onclick="event.stopPropagation();quickCheck('${e.dUrl}')">↻</span>
     </div>`).join('');
-  // Show history limit notice for free users
   const old = document.getElementById('history-limit-notice');
   if (old) old.remove();
-  if (userTier !== 'pro' && h.length >= MAX_HISTORY_FREE) {
-    const notice = document.createElement('div');
-    notice.id = 'history-limit-notice';
-    notice.style.cssText = 'text-align:center;padding:10px;font-size:0.78rem;color:var(--text-faint);border-top:1px solid var(--border);margin-top:6px;';
-    notice.innerHTML = `Showing last ${MAX_HISTORY_FREE} checks. <button onclick="goToPro()" style="background:none;border:none;color:#f59e0b;cursor:pointer;font-weight:700;font-family:inherit;font-size:inherit;">⭐ Upgrade to Pro</button> for unlimited history.`;
-    list.after(notice);
-  }
 }
 
 (function(){
@@ -1023,14 +1089,22 @@ fbAuth.onAuthStateChanged(async (user) => {
       }
       // Verify Pro status with Stripe (catches new subscribers and cancellations)
       const isPro = await checkSubscription(user.email);
-      if (isPro && userTier !== 'pro') {
+      if (isPro) {
         userTier = 'pro';
         await profileRef.set({ tier:'pro' }, { merge:true });
-      } else if (!isPro && userTier === 'pro') {
+      } else {
         userTier = 'free';
         await profileRef.set({ tier:'free' }, { merge:true });
       }
     } catch(e) { userTier = 'free'; }
+
+    // No free tier — if not Pro, sign out and show trial prompt
+    if (userTier !== 'pro') {
+      await fbAuth.signOut();
+      showTrialModal();
+      return;
+    }
+
     updateAuthUI(user);
     await loadCloudData();
   } else {
@@ -1061,15 +1135,15 @@ function updateAuthUI(user) {
   const userName  = document.getElementById('user-name');
   const userAvatar= document.getElementById('user-avatar');
   const tierBadge = document.getElementById('tier-badge');
+  const navUpgrade = document.getElementById('nav-upgrade-btn');
   if (user) {
     signInBtn.style.display = 'none';
     userPill.style.display  = 'flex';
     const name = user.displayName || user.email.split('@')[0];
-    if(userName)  userName.textContent  = name;
-    if(userAvatar)userAvatar.textContent = name[0].toUpperCase();
-    if(tierBadge) { tierBadge.textContent = userTier==='pro'?'⭐ Pro':'Free'; tierBadge.className='tier-badge '+userTier; }
-    const navUpgrade = document.getElementById('nav-upgrade-btn');
-    if(navUpgrade) navUpgrade.style.display = userTier==='pro' ? 'none' : 'inline-flex';
+    if(userName)   userName.textContent   = name;
+    if(userAvatar) userAvatar.textContent = name[0].toUpperCase();
+    if(tierBadge)  { tierBadge.textContent = '⭐ Pro'; tierBadge.className = 'tier-badge pro'; }
+    if(navUpgrade) navUpgrade.style.display = 'none'; // no upgrade btn needed — all logged-in users are Pro
   } else {
     signInBtn.style.display = 'flex';
     userPill.style.display  = 'none';
@@ -1110,17 +1184,14 @@ async function syncMySitesToCloud() {
   try { await fbDb.collection('users').doc(currentUser.uid).collection('data').doc('mysites').set({ sites:loadMySites(), updatedAt:firebase.firestore.FieldValue.serverTimestamp() }); } catch(e) {}
 }
 
-function showAuthModal(tab='signin') {
+function showAuthModal() {
   document.getElementById('auth-modal').classList.add('active');
-  switchAuthTab(tab);
   clearAuthError();
 }
 function hideAuthModal() { document.getElementById('auth-modal').classList.remove('active'); clearAuthError(); }
 function switchAuthTab(tab) {
-  document.getElementById('tab-signin').classList.toggle('active',tab==='signin');
-  document.getElementById('tab-register').classList.toggle('active',tab==='register');
-  document.getElementById('auth-panel-signin').classList.toggle('active',tab==='signin');
-  document.getElementById('auth-panel-register').classList.toggle('active',tab==='register');
+  // Register tab removed — sign-in only
+  document.getElementById('auth-panel-signin').classList.toggle('active', tab==='signin');
 }
 async function signInWithGoogle() {
   try { await fbAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); hideAuthModal(); }
@@ -1133,16 +1204,6 @@ async function handleSignIn() {
   try { await fbAuth.signInWithEmailAndPassword(email,pass); hideAuthModal(); }
   catch(e) { showAuthError(getAuthMsg(e.code)); }
 }
-async function handleRegister() {
-  const email=document.getElementById('register-email').value.trim();
-  const pass =document.getElementById('register-password').value;
-  const conf =document.getElementById('register-confirm').value;
-  if(!email||!pass){showAuthError('Please fill in all fields');return;}
-  if(pass!==conf){showAuthError('Passwords do not match');return;}
-  if(pass.length<6){showAuthError('Password must be at least 6 characters');return;}
-  try { await fbAuth.createUserWithEmailAndPassword(email,pass); hideAuthModal(); }
-  catch(e) { showAuthError(getAuthMsg(e.code),true); }
-}
 async function signOutUser() { await fbAuth.signOut(); }
 async function handleForgotPassword() {
   const email=document.getElementById('signin-email').value.trim();
@@ -1150,13 +1211,13 @@ async function handleForgotPassword() {
   try { await fbAuth.sendPasswordResetEmail(email); showAuthError('Password reset email sent — check your inbox!'); }
   catch(e) { showAuthError(getAuthMsg(e.code)); }
 }
-function showAuthError(msg,reg=false) {
-  const id = reg ? 'auth-error-reg' : 'auth-error';
-  const el = document.getElementById(id);
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
   if(el){el.textContent=msg;el.style.display='block';}
 }
 function clearAuthError() {
-  ['auth-error','auth-error-reg'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent='';el.style.display='none';}});
+  const el = document.getElementById('auth-error');
+  if(el){el.textContent='';el.style.display='none';}
 }
 function getAuthMsg(code) {
   const m={'auth/user-not-found':'No account found with this email','auth/wrong-password':'Incorrect password','auth/email-already-in-use':'An account already exists with this email','auth/weak-password':'Password must be at least 6 characters','auth/invalid-email':'Please enter a valid email address','auth/too-many-requests':'Too many attempts — please try again later','auth/invalid-credential':'Incorrect email or password'};
@@ -1179,6 +1240,38 @@ function toggleTheme() {
   applyTheme(saved);
 })();
 
+// ── TRIAL MODAL ──
+function showTrialModal() {
+  document.getElementById('trial-modal').classList.add('active');
+}
+function hideTrialModal() {
+  document.getElementById('trial-modal').classList.remove('active');
+}
+
+// ── GUEST CHECK COUNTER ──
+const SESSION_GUEST_CHECKS = 'iigd_guest_checks';
+function trackGuestCheck() {
+  if (currentUser) return;
+  const count = parseInt(sessionStorage.getItem(SESSION_GUEST_CHECKS) || '0') + 1;
+  sessionStorage.setItem(SESSION_GUEST_CHECKS, count);
+  if (count === 3) {
+    setTimeout(showTrialNudge, 900);
+  }
+}
+function showTrialNudge() {
+  if (document.getElementById('trial-nudge')) return;
+  const nudge = document.createElement('div');
+  nudge.id = 'trial-nudge';
+  nudge.className = 'trial-nudge';
+  nudge.innerHTML = `<p>🔍 You've done 3 checks! <strong>Start your free 14-day trial</strong> to save history, monitor sites &amp; get email alerts.</p><button class="locked-cta-btn" style="font-size:0.78rem;padding:8px 14px;flex-shrink:0;" onclick="hideTrialNudge();showTrialModal()">Try Pro free →</button><button class="trial-nudge-close" onclick="hideTrialNudge()" title="Dismiss">✕</button>`;
+  document.body.appendChild(nudge);
+  setTimeout(hideTrialNudge, 14000);
+}
+function hideTrialNudge() {
+  const n = document.getElementById('trial-nudge');
+  if (n) n.remove();
+}
+
 // ── UPGRADE PROMPT ──
 function showUpgradePrompt(message) {
   const existing = document.getElementById('upgrade-toast');
@@ -1193,7 +1286,7 @@ function showUpgradePrompt(message) {
 
 // ── EXPORT HISTORY AS CSV ──
 function exportHistoryCSV() {
-  if (userTier !== 'pro') { showUpgradePrompt('📊 Export CSV is a <strong>Pro feature</strong>. Upgrade to download your full history.'); return; }
+  if (!currentUser || userTier !== 'pro') { showTrialModal(); return; }
   const h = loadHistory();
   if (!h.length) { alert('No history to export yet — run some checks first!'); return; }
   const rows = [['URL','Status','HTTP Code','Response Time (ms)','Checked At']];
@@ -1215,14 +1308,11 @@ function addMySite() {
   const val = input.value.trim();
   if (!val) return;
   const dUrl = displayUrl(val);
+  if (!currentUser) { showTrialModal(); return; }
   const sites = loadMySites();
-  if (userTier !== 'pro' && !sites.includes(dUrl) && sites.length >= MAX_MYSITES_FREE) {
-    showUpgradePrompt(`📌 Free accounts can save up to <strong>${MAX_MYSITES_FREE} sites</strong>. Upgrade to Pro for unlimited My Sites.`);
-    return;
-  }
   const filtered = sites.filter(s => s !== dUrl);
   filtered.unshift(dUrl);
-  saveMySites(filtered.slice(0, userTier === 'pro' ? 100 : MAX_MYSITES_FREE));
+  saveMySites(filtered.slice(0, 100));
   input.value = '';
   renderMySites();
   syncMySitesToCloud();
@@ -1233,9 +1323,23 @@ function removeMySite(url) {
   syncMySitesToCloud();
 }
 function renderMySites() {
-  const sites = loadMySites();
-  const list = document.getElementById('my-sites-list');
+  const locked   = document.getElementById('my-sites-locked');
+  const unlocked = document.getElementById('my-sites-unlocked');
+  const list     = document.getElementById('my-sites-list');
   if (!list) return;
+
+  // Guest locked state
+  if (!currentUser) {
+    if (locked)   locked.style.display   = 'block';
+    if (unlocked) unlocked.style.display = 'none';
+    return;
+  }
+
+  // Pro logged-in state
+  if (locked)   locked.style.display   = 'none';
+  if (unlocked) unlocked.style.display = 'block';
+
+  const sites = loadMySites();
   if (!sites.length) {
     list.innerHTML = '<span class="my-sites-empty">No saved sites yet — add your favourites above</span>';
   } else {
@@ -1245,18 +1349,11 @@ function renderMySites() {
         <button class="my-site-pill-remove" onclick="removeMySite('${s}')" title="Remove">×</button>
       </div>`).join('');
   }
-  // Show limit indicator for free users
   const limitEl = document.getElementById('mysites-limit');
   if (limitEl) limitEl.remove();
-  if (userTier !== 'pro') {
-    const indicator = document.createElement('div');
-    indicator.id = 'mysites-limit';
-    indicator.style.cssText = 'font-size:0.72rem;color:var(--text-faint);margin-top:8px;display:flex;align-items:center;justify-content:space-between;';
-    indicator.innerHTML = `<span>${sites.length}/${MAX_MYSITES_FREE} sites used (Free)</span>${sites.length >= MAX_MYSITES_FREE ? `<button onclick="goToPro()" style="font-size:0.7rem;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;border:none;border-radius:5px;padding:3px 9px;cursor:pointer;font-family:inherit;font-weight:700;">⭐ Upgrade</button>` : ''}`;
-    list.after(indicator);
-  }
 }
 renderMySites();
+renderHistory(); // show locked state immediately for guests
 
 // ── CLEAR ALL ──
 function clearAll() {
@@ -1376,16 +1473,12 @@ initStatusBoard();
 <div class="modal-overlay" id="auth-modal" onclick="if(event.target===this)hideAuthModal()">
   <div class="auth-modal">
     <div class="auth-modal-header">
-      <h2>Welcome to IsItGoneDown</h2>
+      <h2>Sign in to IsItGoneDown</h2>
       <button class="modal-close" onclick="hideAuthModal()">✕</button>
-    </div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" id="tab-signin" onclick="switchAuthTab('signin')">Sign in</button>
-      <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Create account</button>
     </div>
 
     <!-- SIGN IN PANEL -->
-    <div class="auth-panel active" id="auth-panel-signin">
+    <div class="auth-panel active" id="auth-panel-signin" style="padding-top:16px;">
       <div class="auth-error" id="auth-error"></div>
       <button class="google-btn" onclick="signInWithGoogle()">
         <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.6 2.4 30.1 0 24 0 14.7 0 6.7 5.4 2.9 13.3l7.8 6C12.4 13 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17z"/><path fill="#FBBC05" d="M10.7 28.7A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.7l-7.8-6A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.5 10.7l8.2-6z"/><path fill="#34A853" d="M24 48c6.1 0 11.2-2 14.9-5.4l-7.5-5.8c-2 1.4-4.6 2.2-7.4 2.2-6.2 0-11.5-4.2-13.4-9.9l-8.2 6C6.7 42.6 14.7 48 24 48z"/></svg>
@@ -1397,26 +1490,32 @@ initStatusBoard();
         onkeydown="if(event.key==='Enter')handleSignIn()"/>
       <button class="auth-submit" onclick="handleSignIn()">Sign in</button>
       <button class="auth-forgot" onclick="handleForgotPassword()">Forgot password?</button>
-    </div>
-
-    <!-- REGISTER PANEL -->
-    <div class="auth-panel" id="auth-panel-register">
-      <div class="auth-error" id="auth-error-reg"></div>
-      <button class="google-btn" onclick="signInWithGoogle()">
-        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.6 2.4 30.1 0 24 0 14.7 0 6.7 5.4 2.9 13.3l7.8 6C12.4 13 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17z"/><path fill="#FBBC05" d="M10.7 28.7A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.7l-7.8-6A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.5 10.7l8.2-6z"/><path fill="#34A853" d="M24 48c6.1 0 11.2-2 14.9-5.4l-7.5-5.8c-2 1.4-4.6 2.2-7.4 2.2-6.2 0-11.5-4.2-13.4-9.9l-8.2 6C6.7 42.6 14.7 48 24 48z"/></svg>
-        Sign up with Google
-      </button>
-      <div class="auth-divider"><span>or create an account</span></div>
-      <input class="auth-input" id="register-email" type="email" placeholder="Email address" autocomplete="email"/>
-      <input class="auth-input" id="register-password" type="password" placeholder="Password (min 6 characters)" autocomplete="new-password"/>
-      <input class="auth-input" id="register-confirm" type="password" placeholder="Confirm password" autocomplete="new-password"
-        onkeydown="if(event.key==='Enter')handleRegister()"/>
-      <button class="auth-submit" onclick="handleRegister()">Create free account</button>
-      <div class="upgrade-bar">
-        <div><strong>⭐ Upgrade to Pro</strong><p>Unlimited monitors, instant alerts, scheduled checks & more</p></div>
-        <button class="upgrade-btn" onclick="goToPro()">Upgrade Now ⭐</button>
+      <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);text-align:center;">
+        <p style="font-size:0.78rem;color:var(--text-faint);margin-bottom:10px;">New to IsItGoneDown?</p>
+        <button class="locked-cta-btn" style="width:100%;padding:11px;" onclick="hideAuthModal();showTrialModal()">Start 14-day free trial →</button>
+        <p style="font-size:0.7rem;color:var(--text-faint);margin-top:8px;">€7.99/month after trial · Cancel anytime</p>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- TRIAL MODAL -->
+<div class="modal-overlay" id="trial-modal" onclick="if(event.target===this)hideTrialModal()">
+  <div class="trial-modal">
+    <div class="trial-badge-pill">14-Day Free Trial</div>
+    <h2>Monitor sites like a pro</h2>
+    <p class="trial-price-note">€7.99/month after trial · Cancel any time · No surprise charges</p>
+    <ul class="trial-features">
+      <li><span class="tf-check">✓</span> Scheduled monitoring — check every 5, 15 or 60 mins</li>
+      <li><span class="tf-check">✓</span> Email alerts the moment a site goes down or comes back</li>
+      <li><span class="tf-check">✓</span> Unlimited saved sites &amp; full check history</li>
+      <li><span class="tf-check">✓</span> Response time tracking over time</li>
+      <li><span class="tf-check">✓</span> CSV export of your history</li>
+    </ul>
+    <button class="trial-start-btn" onclick="hideTrialModal();goToPro()">Start my free trial →</button>
+    <p class="trial-cancel-note">Your card won't be charged for 14 days. Cancel any time before that and pay nothing.</p>
+    <button class="trial-no-thanks" onclick="hideTrialModal()">No thanks, I'll keep checking manually</button>
+    <p class="trial-signin-link">Already a Pro member? <button onclick="hideTrialModal();showAuthModal()">Sign in here</button></p>
   </div>
 </div>
 
