@@ -1081,6 +1081,8 @@ async function loadCloudData() {
   try {
     const base = fbDb.collection('users').doc(currentUser.uid).collection('data');
     const [histDoc, sitesDoc] = await Promise.all([base.doc('history').get(), base.doc('mysites').get()]);
+    // Guard: user may have signed out while Firestore was fetching — bail out if so
+    if (!currentUser) return;
     if (histDoc.exists) {
       const cloud = histDoc.data().items || [];
       const local = loadHistory();
@@ -1093,6 +1095,7 @@ async function loadCloudData() {
       localStorage.setItem(LS_MYSITES, JSON.stringify(sitesDoc.data().sites||[]));
     }
   } catch(e) {}
+  if (!currentUser) return;
   renderHistory();
   renderMySites();
 }
