@@ -23,11 +23,12 @@ function request(options, body) {
   });
 }
 
-// ── Check if a URL is up ─────────────────────────────────────
+// ── Check if a URL is up (returns status + response time ms) ─
 function checkUrl(url) {
   return new Promise(resolve => {
     try {
       const u = new URL(url);
+      const start = Date.now();
       const options = {
         hostname: u.hostname,
         path: u.pathname || '/',
@@ -37,12 +38,13 @@ function checkUrl(url) {
       };
       const mod = u.protocol === 'https:' ? https : require('http');
       const req = mod.request(options, res => {
-        resolve(res.statusCode < 500 ? 'up' : 'down');
+        const elapsed = Date.now() - start;
+        resolve({ status: res.statusCode < 500 ? 'up' : 'down', elapsed });
       });
-      req.on('error', () => resolve('down'));
-      req.on('timeout', () => { req.destroy(); resolve('down'); });
+      req.on('error', () => resolve({ status: 'down', elapsed: null }));
+      req.on('timeout', () => { req.destroy(); resolve({ status: 'down', elapsed: null }); });
       req.end();
-    } catch { resolve('down'); }
+    } catch { resolve({ status: 'down', elapsed: null }); }
   });
 }
 
@@ -87,25 +89,28 @@ async function getActiveMonitors() {
         url:         f.url?.stringValue || '',
         displayUrl:  f.displayUrl?.stringValue || '',
         interval:    parseInt(f.interval?.integerValue || f.interval?.doubleValue || 15),
-        lastStatus:  f.lastStatus?.stringValue || 'unknown',
+        lastStatus:       f.lastStatus?.stringValue || 'unknown',
         lastChecked,
-        lastAlertSent: f.lastAlertSent?.timestampValue ? new Date(f.lastAlertSent.timestampValue) : null
+        lastAlertSent:    f.lastAlertSent?.timestampValue ? new Date(f.lastAlertSent.timestampValue) : null,
+        lastResponseTime: f.lastResponseTime ? parseInt(f.lastResponseTime.integerValue || f.lastResponseTime.doubleValue || 0) : null
       };
     })
     .filter(m => m.url && m.email);
 }
 
 // ── Firestore REST: update monitor status ────────────────────
-async function updateMonitorStatus(docId, lastStatus, lastChecked, lastAlertSent) {
+async function updateMonitorStatus(docId, lastStatus, lastChecked, lastAlertSent, lastResponseTime) {
   const fields = {
     lastStatus:  { stringValue: lastStatus },
     lastChecked: { timestampValue: lastChecked.toISOString() }
   };
   if (lastAlertSent) fields.lastAlertSent = { timestampValue: lastAlertSent.toISOString() };
+  if (lastResponseTime) fields.lastResponseTime = { integerValue: lastResponseTime };
 
   const payload = JSON.stringify({ fields });
-  const mask = 'updateMask.fieldPaths=lastStatus&updateMask.fieldPaths=lastChecked' +
-               (lastAlertSent ? '&updateMask.fieldPaths=lastAlertSent' : '');
+  let mask = 'updateMask.fieldPaths=lastStatus&updateMask.fieldPaths=lastChecked';
+  if (lastAlertSent) mask += '&updateMask.fieldPaths=lastAlertSent';
+  if (lastResponseTime) mask += '&updateMask.fieldPaths=lastResponseTime';
 
   await request({
     hostname: 'firestore.googleapis.com',
@@ -196,14 +201,17 @@ exports.handler = async (event) => {
     }
 
     // Check the URL
-    let newStatus;
+    let newStatus, elapsed;
     try {
-      newStatus = await checkUrl(monitor.url);
+      const result = await checkUrl(monitor.url);
+      newStatus = result.status;
+      elapsed   = result.elapsed;
     } catch(e) {
       newStatus = 'down';
+      elapsed   = null;
     }
 
-    console.log(`${monitor.displayUrl}: ${monitor.lastStatus} → ${newStatus}`);
+    console.log(`${monitor.displayUrl}: ${monitor.lastStatus} → ${newStatus} (${elapsed}ms)`);
 
     // Send alert if status changed
     let alertSent = monitor.lastAlertSent;
@@ -219,12 +227,12 @@ exports.handler = async (event) => {
 
     // Update Firestore
     try {
-      await updateMonitorStatus(monitor.docId, newStatus, now, alertSent !== monitor.lastAlertSent ? alertSent : null);
+      await updateMonitorStatus(monitor.docId, newStatus, now, alertSent !== monitor.lastAlertSent ? alertSent : null, elapsed);
     } catch(e) {
       console.error('Failed to update monitor:', e.message);
     }
 
-    results.push({ url: monitor.displayUrl, was: monitor.lastStatus, now: newStatus });
+    results.push({ url: monitor.displayUrl, was: monitor.lastStatus, now: newStatus, elapsed });
   }
 
   return {

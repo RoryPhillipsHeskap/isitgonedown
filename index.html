@@ -339,6 +339,12 @@
     .result-meta { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px; }
     .meta-chip { background:var(--surface-2); border:1px solid var(--border); border-radius:6px; padding:4px 9px; font-size:0.72rem; color:var(--text-muted); }
     .meta-chip strong { color:var(--text); }
+    .speed-chip { border-radius:6px; padding:4px 9px; font-size:0.72rem; font-weight:700; border:1px solid; }
+    .speed-lightning { background:rgba(34,197,94,0.12); border-color:rgba(34,197,94,0.3); color:#22c55e; }
+    .speed-fast      { background:rgba(74,222,128,0.1);  border-color:rgba(74,222,128,0.25); color:#4ade80; }
+    .speed-moderate  { background:rgba(245,158,11,0.1);  border-color:rgba(245,158,11,0.3);  color:#f59e0b; }
+    .speed-slow      { background:rgba(249,115,22,0.1);  border-color:rgba(249,115,22,0.3);  color:#f97316; }
+    .speed-veryslow  { background:rgba(239,68,68,0.1);   border-color:rgba(239,68,68,0.3);   color:#ef4444; }
 
     /* ── VOTE ── */
     .vote-section { border-top:1px solid var(--border-soft); padding-top:13px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
@@ -406,6 +412,7 @@
     .history-item.down .h-status { color:var(--down); }
     .history-item.warn .h-status { color:var(--warn); }
     .h-time { font-size:0.7rem; color:var(--text-faint); white-space:nowrap; }
+    .h-elapsed { font-size:0.68rem; font-weight:600; white-space:nowrap; }
     .h-recheck { font-size:0.68rem; color:var(--text-faint); background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:3px 8px; cursor:pointer; transition:all 0.15s; flex-shrink:0; }
     .h-recheck:hover { border-color:var(--accent); color:var(--accent); }
 
@@ -880,6 +887,15 @@ async function startBulkCheck() {
   btn.disabled=false; btn.textContent='Check all';
 }
 
+function speedLabel(ms) {
+  if (!ms || ms <= 0) return null;
+  if (ms < 300)  return { cls:'speed-lightning', label:`⚡ ${ms}ms — Lightning fast` };
+  if (ms < 800)  return { cls:'speed-fast',      label:`✓ ${ms}ms — Fast` };
+  if (ms < 2000) return { cls:'speed-moderate',  label:`~ ${ms}ms — Moderate` };
+  if (ms < 4000) return { cls:'speed-slow',      label:`⚠ ${ms}ms — Slow` };
+  return           { cls:'speed-veryslow',        label:`✗ ${ms}ms — Very slow` };
+}
+
 function buildCard(res) {
   const votes = loadVotes(res.url);
   const shareUrl = encodeURIComponent(location.origin+location.pathname+'?url='+res.dUrl);
@@ -907,7 +923,7 @@ function buildCard(res) {
       <div class="result-summary">${res.summary}</div>
       <div class="result-meta">
         <div class="meta-chip"><strong>${res.httpCode?'HTTP '+res.httpCode:res.localOk?'Reachable':'No response'}</strong></div>
-        <div class="meta-chip">Response: <strong>${res.elapsed}ms</strong></div>
+        ${(()=>{ const s=speedLabel(res.elapsed); return s ? `<div class="speed-chip ${s.cls}">${s.label}</div>` : ''; })()}
         <div class="meta-chip">At: <strong>${res.ts}</strong></div>
         <div class="meta-chip">Proxy: <strong>${res.proxyOk?'✓ Online':'✗ Offline'}</strong></div>
         <div class="meta-chip">Your network: <strong>${res.localOk?'✓ Reachable':'✗ Unreachable'}</strong></div>
@@ -1056,6 +1072,7 @@ function renderHistory() {
       <span class="h-url">${e.dUrl}</span>
       ${buildSparkline(h)}
       <span class="h-status">${e.status==='up'?'UP':e.status==='down'?'DOWN':'PARTIAL'}</span>
+      ${(()=>{ const s=speedLabel(e.elapsed); return s ? `<span class="h-elapsed ${s.cls}" style="padding:2px 6px;border-radius:4px;border:1px solid;">${e.elapsed}ms</span>` : ''; })()}
       <span class="h-time">${e.ts}</span>
       <span class="h-recheck" onclick="event.stopPropagation();quickCheck('${e.dUrl}')">↻</span>
     </div>`).join('');
@@ -1483,10 +1500,13 @@ function renderMonitors(monitors) {
   }
   list.innerHTML = monitors.map(m => {
     const statusClass = m.lastStatus === 'up' ? 'up' : m.lastStatus === 'down' ? 'down' : 'unknown';
-    const lastCheckedStr = m.lastChecked ? new Date(m.lastChecked.toDate ? m.lastChecked.toDate() : m.lastChecked).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : 'Not yet checked';
+    const lastCheckedStr = m.lastChecked ? new Date(m.lastChecked.toDate ? m.lastChecked.toDate() : m.lastChecked).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : 'Pending';
+    const spd = m.lastResponseTime ? speedLabel(m.lastResponseTime) : null;
+    const spdHtml = spd ? `<span class="speed-chip ${spd.cls}" style="font-size:0.66rem;padding:2px 7px;">${m.lastResponseTime}ms</span>` : '';
     return `<div class="monitor-item">
       <div class="monitor-dot ${statusClass}"></div>
       <span class="monitor-url" title="${m.displayUrl}">${m.displayUrl}</span>
+      ${spdHtml}
       <span class="monitor-interval">Every ${m.interval} min</span>
       <span class="monitor-last">${lastCheckedStr}</span>
       <button class="monitor-remove" onclick="removeMonitor('${m.id}')" title="Remove monitor">×</button>
