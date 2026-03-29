@@ -203,6 +203,31 @@
     .my-site-pill-remove:hover { color:var(--down); }
     .my-sites-empty { font-size:0.76rem; color:var(--text-faint); font-style:italic; }
 
+    /* ── MONITORS ── */
+    .monitors-bar { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-bottom:20px; display:none; }
+    .monitors-bar.pro-visible { display:block; }
+    .monitors-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+    .monitors-header h3 { font-size:0.71rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); }
+    .monitors-add-row { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+    .monitors-url-input { flex:1; min-width:160px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:7px 12px; font-size:0.8rem; color:var(--text); font-family:var(--font); outline:none; transition:border-color 0.15s; }
+    .monitors-url-input:focus { border-color:var(--accent); }
+    .monitors-url-input::placeholder { color:var(--text-faint); }
+    .monitors-interval-select { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:7px 10px; font-size:0.78rem; color:var(--text); font-family:var(--font); outline:none; cursor:pointer; }
+    .monitors-add-btn { background:var(--accent); color:#fff; border:none; border-radius:var(--radius-sm); padding:7px 14px; font-size:0.78rem; font-weight:600; cursor:pointer; font-family:var(--font); white-space:nowrap; transition:opacity 0.15s; }
+    .monitors-add-btn:hover { opacity:0.85; }
+    .monitors-list { display:flex; flex-direction:column; gap:8px; }
+    .monitor-item { display:flex; align-items:center; gap:10px; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:9px 12px; }
+    .monitor-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+    .monitor-dot.up { background:#22c55e; box-shadow:0 0 6px rgba(34,197,94,0.5); }
+    .monitor-dot.down { background:#ef4444; box-shadow:0 0 6px rgba(239,68,68,0.5); }
+    .monitor-dot.unknown { background:#6b6b80; }
+    .monitor-url { font-size:0.82rem; color:var(--text); font-weight:500; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .monitor-interval { font-size:0.7rem; color:var(--text-faint); white-space:nowrap; }
+    .monitor-last { font-size:0.7rem; color:var(--text-faint); white-space:nowrap; }
+    .monitor-remove { background:none; border:none; color:var(--text-faint); cursor:pointer; font-size:0.9rem; padding:0 2px; line-height:1; transition:color 0.15s; font-family:var(--font); }
+    .monitor-remove:hover { color:var(--down); }
+    .monitors-empty { font-size:0.76rem; color:var(--text-faint); font-style:italic; }
+
     /* ── TOP NAV ── */
     .topnav { position:sticky; top:0; z-index:200; background:rgba(10,10,15,0.92); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 20px; height:48px; }
     .topnav-brand { display:flex; align-items:center; gap:8px; font-size:0.88rem; font-weight:700; color:var(--text); letter-spacing:-0.01em; text-decoration:none; }
@@ -559,6 +584,26 @@
       <div class="my-sites-list" id="my-sites-list">
         <span class="my-sites-empty">No saved sites yet — add your favourites above</span>
       </div>
+    </div>
+  </div>
+
+  <!-- MONITORS (Pro only) -->
+  <div class="monitors-bar" id="monitors-bar">
+    <div class="monitors-header">
+      <h3>📡 Monitors</h3>
+      <span style="font-size:0.7rem;color:var(--text-faint);">Checks run every 5–60 mins · Email alert on status change</span>
+    </div>
+    <div class="monitors-add-row">
+      <input class="monitors-url-input" id="monitor-url-input" type="text" placeholder="Site to monitor — e.g. mywebsite.com" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')addMonitor()"/>
+      <select class="monitors-interval-select" id="monitor-interval">
+        <option value="5">Every 5 min</option>
+        <option value="15" selected>Every 15 min</option>
+        <option value="60">Every 60 min</option>
+      </select>
+      <button class="monitors-add-btn" onclick="addMonitor()">+ Monitor</button>
+    </div>
+    <div class="monitors-list" id="monitors-list">
+      <span class="monitors-empty">No monitors yet — add a site above to get email alerts when it goes down.</span>
     </div>
   </div>
 
@@ -1107,6 +1152,7 @@ fbAuth.onAuthStateChanged(async (user) => {
 
     updateAuthUI(user);
     await loadCloudData();
+    await loadMonitors();
   } else {
     userTier = 'free';
     updateAuthUI(null);
@@ -1115,7 +1161,9 @@ fbAuth.onAuthStateChanged(async (user) => {
     localStorage.removeItem(LS_MYSITES);
     renderHistory();
     renderMySites();
-    // Hide clear button since there's nothing to clear
+    // Hide monitors bar and clear button
+    const mb = document.getElementById('monitors-bar');
+    if (mb) mb.classList.remove('pro-visible');
     const cb = document.getElementById('hero-clear-btn');
     if (cb) cb.style.display = 'none';
   }
@@ -1354,6 +1402,80 @@ function renderMySites() {
 }
 renderMySites();
 renderHistory(); // show locked state immediately for guests
+
+// ── MONITORS ──
+async function addMonitor() {
+  if (!currentUser || userTier !== 'pro') return;
+  const input    = document.getElementById('monitor-url-input');
+  const intervalEl = document.getElementById('monitor-interval');
+  const val      = input.value.trim();
+  if (!val) return;
+  const dUrl     = displayUrl(val);
+  const url      = normalise(val);
+  if (!url) return;
+  const interval = parseInt(intervalEl.value);
+  try {
+    await fbDb.collection('monitors').add({
+      userId:      currentUser.uid,
+      email:       currentUser.email,
+      url,
+      displayUrl:  dUrl,
+      interval,
+      active:      true,
+      lastStatus:  'unknown',
+      lastChecked: null,
+      lastAlertSent: null,
+      createdAt:   firebase.firestore.FieldValue.serverTimestamp()
+    });
+    input.value = '';
+    await loadMonitors();
+  } catch(e) { console.error('addMonitor:', e); }
+}
+
+async function removeMonitor(docId) {
+  if (!currentUser) return;
+  try {
+    await fbDb.collection('monitors').doc(docId).delete();
+    await loadMonitors();
+  } catch(e) {}
+}
+
+async function loadMonitors() {
+  if (!currentUser || userTier !== 'pro') {
+    document.getElementById('monitors-bar').classList.remove('pro-visible');
+    return;
+  }
+  document.getElementById('monitors-bar').classList.add('pro-visible');
+  try {
+    const snap = await fbDb.collection('monitors')
+      .where('userId', '==', currentUser.uid)
+      .where('active', '==', true)
+      .get();
+    const monitors = [];
+    snap.forEach(doc => monitors.push({ id: doc.id, ...doc.data() }));
+    renderMonitors(monitors);
+  } catch(e) { renderMonitors([]); }
+}
+
+function renderMonitors(monitors) {
+  const list = document.getElementById('monitors-list');
+  if (!list) return;
+  if (!monitors.length) {
+    list.innerHTML = '<span class="monitors-empty">No monitors yet — add a site above to get email alerts when it goes down.</span>';
+    return;
+  }
+  list.innerHTML = monitors.map(m => {
+    const statusClass = m.lastStatus === 'up' ? 'up' : m.lastStatus === 'down' ? 'down' : 'unknown';
+    const lastCheckedStr = m.lastChecked ? new Date(m.lastChecked.toDate ? m.lastChecked.toDate() : m.lastChecked).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : 'Not yet checked';
+    return `<div class="monitor-item">
+      <div class="monitor-dot ${statusClass}"></div>
+      <span class="monitor-url" title="${m.displayUrl}">${m.displayUrl}</span>
+      <span class="monitor-interval">Every ${m.interval} min</span>
+      <span class="monitor-last">${lastCheckedStr}</span>
+      <button class="monitor-remove" onclick="removeMonitor('${m.id}')" title="Remove monitor">×</button>
+    </div>`;
+  }).join('');
+}
 
 // ── CLEAR ALL ──
 function clearAll() {
