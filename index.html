@@ -1258,9 +1258,13 @@ function showPostPaymentModal() {
       <div style="font-size:2.2rem;margin-bottom:12px;">🎉</div>
       <h2 style="font-size:1.25rem;font-weight:700;color:var(--text);margin-bottom:8px;">Payment successful — welcome to Pro!</h2>
       <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:20px;line-height:1.6;">Your subscription is active. Sign in (or create a free account) with the <strong>same email you used at checkout</strong> and you'll get instant Pro access.</p>
-      <button onclick="document.getElementById('post-payment-modal').remove();showAuthModal();"
+      <button onclick="document.getElementById('post-payment-modal').remove();showAuthModal('register');"
         style="width:100%;padding:13px;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;border:none;border-radius:10px;font-size:0.95rem;font-weight:700;cursor:pointer;margin-bottom:10px;">
-        Sign in / Create account →
+        Create my account →
+      </button>
+      <button onclick="document.getElementById('post-payment-modal').remove();showAuthModal('signin');"
+        style="width:100%;padding:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;color:var(--text-muted);font-size:0.82rem;font-weight:600;cursor:pointer;margin-bottom:6px;">
+        I already have an account — Sign in
       </button>
       <button onclick="document.getElementById('post-payment-modal').remove();"
         style="width:100%;padding:10px;background:none;border:none;color:var(--text-faint);font-size:0.78rem;cursor:pointer;">
@@ -1388,14 +1392,32 @@ async function syncMySitesToCloud() {
   try { await fbDb.collection('users').doc(currentUser.uid).collection('data').doc('mysites').set({ sites:loadMySites(), updatedAt:firebase.firestore.FieldValue.serverTimestamp() }); } catch(e) {}
 }
 
-function showAuthModal() {
+function showAuthModal(tab) {
   document.getElementById('auth-modal').classList.add('active');
+  switchAuthTab(tab || 'signin');
   clearAuthError();
 }
 function hideAuthModal() { document.getElementById('auth-modal').classList.remove('active'); clearAuthError(); }
 function switchAuthTab(tab) {
-  // Register tab removed — sign-in only
-  document.getElementById('auth-panel-signin').classList.toggle('active', tab==='signin');
+  const isReg = tab === 'register';
+  document.getElementById('auth-panel-signin').classList.toggle('active', !isReg);
+  document.getElementById('auth-panel-register').classList.toggle('active', isReg);
+  document.getElementById('tab-signin').classList.toggle('active', !isReg);
+  document.getElementById('tab-register').classList.toggle('active', isReg);
+  document.getElementById('auth-modal-title').textContent = isReg ? 'Create your account' : 'Sign in to IsItGoneDown';
+  clearAuthError();
+}
+async function handleRegister() {
+  const name  = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass  = document.getElementById('reg-password').value;
+  if (!email || !pass) { showAuthError('Please enter your email and a password', true); return; }
+  if (pass.length < 6)  { showAuthError('Password must be at least 6 characters', true); return; }
+  try {
+    const cred = await fbAuth.createUserWithEmailAndPassword(email, pass);
+    if (name) await cred.user.updateProfile({ displayName: name });
+    hideAuthModal();
+  } catch(e) { showAuthError(getAuthMsg(e.code), true); }
 }
 async function signInWithGoogle() {
   try { await fbAuth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); hideAuthModal(); }
@@ -1431,13 +1453,16 @@ async function handleForgotPassword() {
     showAuthError(getAuthMsg(e.code));
   }
 }
-function showAuthError(msg) {
-  const el = document.getElementById('auth-error');
+function showAuthError(msg, isReg) {
+  const id = isReg ? 'auth-error-reg' : 'auth-error';
+  const el = document.getElementById(id);
   if(el){ el.textContent=msg; el.className='auth-error'; el.style.display='block'; }
 }
 function clearAuthError() {
-  const el = document.getElementById('auth-error');
-  if(el){ el.textContent=''; el.className='auth-error'; el.style.display='none'; }
+  ['auth-error','auth-error-reg'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){ el.textContent=''; el.className='auth-error'; el.style.display='none'; }
+  });
 }
 function getAuthMsg(code) {
   const m={'auth/user-not-found':'No account found with this email','auth/wrong-password':'Incorrect password','auth/email-already-in-use':'An account already exists with this email','auth/weak-password':'Password must be at least 6 characters','auth/invalid-email':'Please enter a valid email address','auth/too-many-requests':'Too many attempts — please try again later','auth/invalid-credential':'Incorrect email or password'};
@@ -1770,12 +1795,16 @@ initStatusBoard();
 <div class="modal-overlay" id="auth-modal" onclick="if(event.target===this)hideAuthModal()">
   <div class="auth-modal">
     <div class="auth-modal-header">
-      <h2>Sign in to IsItGoneDown</h2>
+      <h2 id="auth-modal-title">Sign in to IsItGoneDown</h2>
       <button class="modal-close" onclick="hideAuthModal()">✕</button>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-signin" onclick="switchAuthTab('signin')">Sign in</button>
+      <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Create account</button>
     </div>
 
     <!-- SIGN IN PANEL -->
-    <div class="auth-panel active" id="auth-panel-signin" style="padding-top:16px;">
+    <div class="auth-panel active" id="auth-panel-signin">
       <div class="auth-error" id="auth-error"></div>
       <button class="google-btn" onclick="signInWithGoogle()">
         <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.6 2.4 30.1 0 24 0 14.7 0 6.7 5.4 2.9 13.3l7.8 6C12.4 13 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17z"/><path fill="#FBBC05" d="M10.7 28.7A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.7l-7.8-6A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.5 10.7l8.2-6z"/><path fill="#34A853" d="M24 48c6.1 0 11.2-2 14.9-5.4l-7.5-5.8c-2 1.4-4.6 2.2-7.4 2.2-6.2 0-11.5-4.2-13.4-9.9l-8.2 6C6.7 42.6 14.7 48 24 48z"/></svg>
@@ -1787,10 +1816,26 @@ initStatusBoard();
         onkeydown="if(event.key==='Enter')handleSignIn()"/>
       <button class="auth-submit" onclick="handleSignIn()">Sign in</button>
       <button class="auth-forgot" onclick="handleForgotPassword()">Forgot password?</button>
-      <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);text-align:center;">
-        <p style="font-size:0.78rem;color:var(--text-faint);margin-bottom:10px;">New to IsItGoneDown?</p>
-        <button class="locked-cta-btn" style="width:100%;padding:11px;" onclick="hideAuthModal();showTrialModal()">Start 14-day free trial →</button>
-        <p style="font-size:0.7rem;color:var(--text-faint);margin-top:8px;">€7.99/month after trial · Cancel anytime</p>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);text-align:center;">
+        <p style="font-size:0.78rem;color:var(--text-faint);margin-bottom:8px;">No account yet? <button onclick="switchAuthTab('register')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:0.78rem;font-family:var(--font);font-weight:600;">Create one →</button></p>
+      </div>
+    </div>
+
+    <!-- REGISTER PANEL -->
+    <div class="auth-panel" id="auth-panel-register">
+      <div class="auth-error" id="auth-error-reg"></div>
+      <button class="google-btn" onclick="signInWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.6 2.4 30.1 0 24 0 14.7 0 6.7 5.4 2.9 13.3l7.8 6C12.4 13 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17z"/><path fill="#FBBC05" d="M10.7 28.7A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.7l-7.8-6A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.5 10.7l8.2-6z"/><path fill="#34A853" d="M24 48c6.1 0 11.2-2 14.9-5.4l-7.5-5.8c-2 1.4-4.6 2.2-7.4 2.2-6.2 0-11.5-4.2-13.4-9.9l-8.2 6C6.7 42.6 14.7 48 24 48z"/></svg>
+        Continue with Google
+      </button>
+      <div class="auth-divider"><span>or create account with email</span></div>
+      <input class="auth-input" id="reg-name" type="text" placeholder="Your name" autocomplete="name"/>
+      <input class="auth-input" id="reg-email" type="email" placeholder="Email address (same as checkout)" autocomplete="email"/>
+      <input class="auth-input" id="reg-password" type="password" placeholder="Choose a password (min 6 chars)" autocomplete="new-password"
+        onkeydown="if(event.key==='Enter')handleRegister()"/>
+      <button class="auth-submit" onclick="handleRegister()">Create account</button>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);text-align:center;">
+        <p style="font-size:0.78rem;color:var(--text-faint);">Already have an account? <button onclick="switchAuthTab('signin')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:0.78rem;font-family:var(--font);font-weight:600;">Sign in →</button></p>
       </div>
     </div>
   </div>
