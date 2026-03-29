@@ -251,8 +251,7 @@
 
     /* ── TOP BANNER AD (728x90) ── */
     .ad-top-banner { width:100%; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:center; padding:8px 16px; min-height:60px; }
-    .ad-top-banner .ad-inner { width:728px; max-width:100%; height:90px; background:var(--surface-2); border:1px dashed var(--border); border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; color:var(--text-faint); font-size:0.73rem; letter-spacing:0.05em; }
-    /* ↓↓↓ SWAP ad-inner WITH: <ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-XXXX" data-ad-slot="XXXX"></ins> ↓↓↓ */
+    .ad-top-banner ins { max-width:100%; }
 
     /* ── LAYOUT ── */
     .page-wrap { display:grid; grid-template-columns:1fr 300px; gap:0; max-width:1100px; margin:0 auto; padding:32px 20px 80px; }
@@ -262,8 +261,7 @@
     /* ── SIDEBAR AD (300x250) ── */
     .ad-sidebar { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
     .ad-label { font-size:0.64rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-faint); padding:8px 12px 4px; }
-    .ad-sidebar .ad-inner { width:100%; height:250px; background:var(--surface-2); display:flex; align-items:center; justify-content:center; color:var(--text-faint); font-size:0.73rem; }
-    /* ↓↓↓ SWAP ad-inner WITH: <ins class="adsbygoogle" style="display:inline-block;width:300px;height:250px" data-ad-client="ca-pub-XXXX" data-ad-slot="XXXX"></ins> ↓↓↓ */
+    .ad-sidebar ins { display:block; margin:0 auto; }
 
     /* ── HERO ── */
     .hero { text-align:center; padding:44px 0 36px; }
@@ -355,6 +353,22 @@
     .vote-count { font-weight:600; }
     .vote-crowd { font-size:0.72rem; color:var(--text-faint); margin-left:auto; }
 
+    /* ── GEO CHECK ── */
+    .geo-section { border-top:1px solid var(--border-soft); padding-top:13px; margin-top:2px; }
+    .geo-header { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+    .geo-title { font-size:0.78rem; font-weight:600; color:var(--text-muted); }
+    .geo-btn { font-size:0.72rem; background:var(--surface-2); border:1px solid var(--border); border-radius:6px; color:var(--text-muted); padding:4px 10px; cursor:pointer; transition:all 0.15s; }
+    .geo-btn:hover:not(:disabled) { border-color:var(--accent); color:var(--accent); }
+    .geo-btn:disabled { opacity:0.5; cursor:default; }
+    .geo-nodes { display:flex; flex-wrap:wrap; gap:7px; }
+    .geo-node { display:flex; align-items:center; gap:5px; font-size:0.72rem; color:var(--text-muted); background:var(--surface-2); border:1px solid var(--border); border-radius:6px; padding:4px 9px; }
+    .geo-dot { width:8px; height:8px; border-radius:50%; background:var(--border); flex-shrink:0; }
+    .geo-dot.up   { background:#22c55e; box-shadow:0 0 4px rgba(34,197,94,0.5); }
+    .geo-dot.down { background:#ef4444; box-shadow:0 0 4px rgba(239,68,68,0.5); }
+    .geo-dot.pending { background:var(--border); animation:geo-pulse 1s ease-in-out infinite; }
+    @keyframes geo-pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+    .geo-elapsed { font-size:0.66rem; color:var(--text-faint); }
+
     /* ── SPINNER ── */
     .checking-state { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px 22px; display:flex; align-items:center; gap:16px; animation:slideUp 0.2s ease; }
     .spinner { width:20px; height:20px; border:2.5px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.7s linear infinite; flex-shrink:0; }
@@ -376,8 +390,7 @@
 
     /* ── MID-PAGE AD ── */
     .ad-mid { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px; margin-bottom:20px; text-align:center; display:none; }
-    .ad-mid .ad-inner { height:90px; background:var(--surface-2); border:1px dashed var(--border); border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; color:var(--text-faint); font-size:0.73rem; }
-    /* ↓↓↓ SWAP ad-inner WITH YOUR ADSENSE RESPONSIVE CODE ↓↓↓ */
+    .ad-mid ins { display:block; width:100%; }
 
     /* ── VPN BANNER ── */
     .vpn-cta { display:none; align-items:center; gap:16px; background:linear-gradient(135deg,#1a1030 0%,#111118 100%); border:1px solid rgba(124,111,247,0.22); border-radius:var(--radius); padding:16px 20px; text-decoration:none; margin-bottom:20px; transition:border-color 0.2s; }
@@ -551,7 +564,13 @@
 
 <!-- TOP BANNER AD (728x90) -->
 <div class="ad-top-banner">
-  <div class="ad-inner">Advertisement · 728×90 — swap this div with your AdSense code</div>
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-5177614316819941"
+       data-ad-slot="7055353383"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
 </div>
 
 <div class="page-wrap">
@@ -676,7 +695,13 @@
   <!-- MID-PAGE AD -->
   <div class="ad-mid" id="ad-mid">
     <div class="ad-label">Advertisement</div>
-    <div class="ad-inner">Responsive Ad — swap this div with your AdSense code</div>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-5177614316819941"
+         data-ad-slot="4672732625"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
   </div>
 
   <!-- VPN AFFILIATE BANNER — replace href="#" with your link -->
@@ -748,7 +773,11 @@
 
   <div class="ad-sidebar">
     <div class="ad-label">Advertisement</div>
-    <div class="ad-inner">300×250 — swap with AdSense code</div>
+    <ins class="adsbygoogle"
+         style="display:inline-block;width:300px;height:250px;"
+         data-ad-client="ca-pub-5177614316819941"
+         data-ad-slot="2238140975"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
   </div>
   <div class="sidebar-tips">
     <h3>How it works</h3>
@@ -934,6 +963,13 @@ function buildCard(res) {
         <button class="vote-btn ${votes.myVote==='up'?'active':''}"   id="vu-${safeD}" onclick="castVote('${safeU}','up','${safeD}')">✓ Working for me <span class="vote-count" id="vc-up-${safeD}">${votes.upCount}</span></button>
         <span class="vote-crowd" id="vs-${safeD}">${renderVoteSummary(votes)}</span>
       </div>
+      <div class="geo-section">
+        <div class="geo-header">
+          <span class="geo-title">🌍 Global check</span>
+          <button class="geo-btn" id="geo-btn-${safeD}" onclick="startGeoCheck('${safeU}','${safeD}')">Check from 6 locations →</button>
+        </div>
+        <div class="geo-nodes" id="geo-nodes-${safeD}"></div>
+      </div>
     </div>
   </div>`;
 }
@@ -978,6 +1014,81 @@ function renderVoteSummary({downCount,upCount}) {
   const t=downCount+upCount; if(!t) return '';
   return `${t} report${t!==1?'s':''} · ${Math.round(downCount/t*100)}% say down`;
 }
+
+// ── GEO CHECK ─────────────────────────────────────────────────
+const GEO_NODE_LABELS = {
+  'de1.node.check-host.net': '🇩🇪 Germany',
+  'uk1.node.check-host.net': '🇬🇧 UK',
+  'us1.node.check-host.net': '🇺🇸 USA East',
+  'us2.node.check-host.net': '🇺🇸 USA West',
+  'jp1.node.check-host.net': '🇯🇵 Japan',
+  'sg1.node.check-host.net': '🇸🇬 Singapore'
+};
+
+async function startGeoCheck(encUrl, safeD) {
+  const url = decodeURIComponent(encUrl);
+  const btn = document.getElementById(`geo-btn-${safeD}`);
+  const nodesEl = document.getElementById(`geo-nodes-${safeD}`);
+  if (!btn || !nodesEl) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Checking…';
+
+  // Show pending placeholders
+  nodesEl.innerHTML = Object.values(GEO_NODE_LABELS).map(label =>
+    `<div class="geo-node"><div class="geo-dot pending"></div><span>${label}</span></div>`
+  ).join('');
+
+  try {
+    const res = await fetch(`/.netlify/functions/geo-check?host=${encodeURIComponent(url)}`);
+    const data = await res.json();
+    if (!data.requestId) throw new Error(data.error || 'No request ID');
+    pollGeoResults(data.requestId, safeD, btn, 0);
+  } catch(e) {
+    nodesEl.innerHTML = `<span style="font-size:0.72rem;color:var(--text-faint);">Could not reach check service — try again later.</span>`;
+    btn.disabled = false;
+    btn.textContent = 'Retry →';
+  }
+}
+
+function pollGeoResults(requestId, safeD, btn, attempts) {
+  if (attempts > 10) {
+    // Give up — render whatever we have
+    btn.disabled = false;
+    btn.textContent = 'Retry →';
+    return;
+  }
+  setTimeout(async () => {
+    try {
+      const res = await fetch(`/.netlify/functions/geo-check?result=${encodeURIComponent(requestId)}`);
+      const data = await res.json();
+      renderGeoNodes(data.results, safeD);
+      if (!data.done) {
+        pollGeoResults(requestId, safeD, btn, attempts + 1);
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Recheck →';
+      }
+    } catch(e) {
+      pollGeoResults(requestId, safeD, btn, attempts + 1);
+    }
+  }, attempts === 0 ? 2500 : 1500);
+}
+
+function renderGeoNodes(results, safeD) {
+  const nodesEl = document.getElementById(`geo-nodes-${safeD}`);
+  if (!nodesEl || !results) return;
+  nodesEl.innerHTML = Object.entries(GEO_NODE_LABELS).map(([nodeId, label]) => {
+    const r = results[nodeId];
+    if (!r || r.status === 'pending') {
+      return `<div class="geo-node"><div class="geo-dot pending"></div><span>${label}</span></div>`;
+    }
+    const dotCls = r.status === 'up' ? 'up' : 'down';
+    const elapsedHtml = r.elapsed ? `<span class="geo-elapsed">${r.elapsed}ms</span>` : '';
+    return `<div class="geo-node"><div class="geo-dot ${dotCls}"></div><span>${label}</span>${elapsedHtml}</div>`;
+  }).join('');
+}
+// ─────────────────────────────────────────────────────────────
 
 function renderWatchlist(res) {
   const area=document.getElementById('watchlist-area');
