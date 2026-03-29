@@ -30,8 +30,17 @@ exports.handler = async (event) => {
     if (!email) return { statusCode: 400, headers, body: JSON.stringify({ isPro: false }) };
     const customers = await stripeRequest('/v1/customers?email=' + encodeURIComponent(email.toLowerCase()) + '&limit=1');
     if (!customers.data || customers.data.length === 0) return { statusCode: 200, headers, body: JSON.stringify({ isPro: false }) };
-    const subs = await stripeRequest('/v1/subscriptions?customer=' + customers.data[0].id + '&status=active&limit=1');
-    return { statusCode: 200, headers, body: JSON.stringify({ isPro: !!(subs.data && subs.data.length > 0) }) };
+    const customerId = customers.data[0].id;
+    // Check both active AND trialing — free trial subscriptions have status=trialing
+    const [activeSubs, trialingSubs] = await Promise.all([
+      stripeRequest('/v1/subscriptions?customer=' + customerId + '&status=active&limit=1'),
+      stripeRequest('/v1/subscriptions?customer=' + customerId + '&status=trialing&limit=1')
+    ]);
+    const isPro = !!(
+      (activeSubs.data  && activeSubs.data.length  > 0) ||
+      (trialingSubs.data && trialingSubs.data.length > 0)
+    );
+    return { statusCode: 200, headers, body: JSON.stringify({ isPro }) };
   } catch(err) {
     return { statusCode: 500, headers, body: JSON.stringify({ isPro: false }) };
   }
