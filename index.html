@@ -165,6 +165,7 @@
     .auth-submit { width:100%; background:var(--accent); color:#fff; border:none; border-radius:var(--radius-sm); padding:10px; font-size:0.85rem; font-weight:700; cursor:pointer; font-family:var(--font); transition:opacity 0.15s; margin-top:4px; }
     .auth-submit:hover { opacity:0.85; }
     .auth-error { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); border-radius:var(--radius-sm); padding:8px 12px; font-size:0.78rem; color:var(--down); margin-bottom:12px; display:none; }
+    .auth-error.success { background:rgba(34,197,94,0.1); border-color:rgba(34,197,94,0.3); color:#22c55e; }
     .auth-forgot { font-size:0.73rem; color:var(--text-faint); background:none; border:none; cursor:pointer; font-family:var(--font); padding:6px 0 0; display:block; text-align:center; width:100%; transition:color 0.15s; }
     .auth-forgot:hover { color:var(--accent); }
     .upgrade-bar { background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(249,115,22,0.1)); border:1px solid rgba(245,158,11,0.3); border-radius:var(--radius-sm); padding:10px 14px; margin-top:12px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
@@ -1254,18 +1255,34 @@ async function handleSignIn() {
 }
 async function signOutUser() { await fbAuth.signOut(); }
 async function handleForgotPassword() {
-  const email=document.getElementById('signin-email').value.trim();
-  if(!email){showAuthError('Enter your email address first');return;}
-  try { await fbAuth.sendPasswordResetEmail(email); showAuthError('Password reset email sent — check your inbox!'); }
-  catch(e) { showAuthError(getAuthMsg(e.code)); }
+  const email = document.getElementById('signin-email').value.trim();
+  if (!email) { showAuthError('Enter your email address first'); return; }
+  const btn = document.querySelector('.auth-forgot');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+  try {
+    await fbAuth.sendPasswordResetEmail(email);
+    const el = document.getElementById('auth-error');
+    if (el) {
+      el.textContent = '✓ Password reset email sent — check your inbox!';
+      el.className = 'auth-error success';
+      el.style.display = 'block';
+    }
+    // Re-enable after 30 seconds to prevent spam
+    setTimeout(() => {
+      if (btn) { btn.disabled = false; btn.textContent = 'Forgot password?'; }
+    }, 30000);
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Forgot password?'; }
+    showAuthError(getAuthMsg(e.code));
+  }
 }
 function showAuthError(msg) {
   const el = document.getElementById('auth-error');
-  if(el){el.textContent=msg;el.style.display='block';}
+  if(el){ el.textContent=msg; el.className='auth-error'; el.style.display='block'; }
 }
 function clearAuthError() {
   const el = document.getElementById('auth-error');
-  if(el){el.textContent='';el.style.display='none';}
+  if(el){ el.textContent=''; el.className='auth-error'; el.style.display='none'; }
 }
 function getAuthMsg(code) {
   const m={'auth/user-not-found':'No account found with this email','auth/wrong-password':'Incorrect password','auth/email-already-in-use':'An account already exists with this email','auth/weak-password':'Password must be at least 6 characters','auth/invalid-email':'Please enter a valid email address','auth/too-many-requests':'Too many attempts — please try again later','auth/invalid-credential':'Incorrect email or password'};
