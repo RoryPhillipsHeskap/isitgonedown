@@ -1309,6 +1309,12 @@ fbAuth.onAuthStateChanged(async (user) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: user.email, firstName: user.displayName ? user.displayName.split(' ')[0] : '' })
         }).catch(() => {});
+        // Notify site owner of new Pro signup
+        fetch('/.netlify/functions/notify-signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: user.email, name: user.displayName || '' })
+        }).catch(() => {});
       } else {
         await profileRef.set({ tier:'pro' }, { merge:true });
       }
