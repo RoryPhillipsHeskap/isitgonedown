@@ -1277,39 +1277,46 @@ function showPostPaymentModal() {
 fbAuth.onAuthStateChanged(async (user) => {
   currentUser = user;
   if (user) {
-    try {
-      const profileRef = fbDb.collection('users').doc(user.uid).collection('data').doc('profile');
-      const profileDoc = await profileRef.get();
-      if (profileDoc.exists) {
-        userTier = profileDoc.data().tier || 'free';
-      } else {
-        await profileRef.set({ email:user.email, displayName:user.displayName||user.email, tier:'free', createdAt:firebase.firestore.FieldValue.serverTimestamp() });
-        userTier = 'free';
-        // New user — add to Systeme.io mailing list silently
-        fetch('/.netlify/functions/add-subscriber', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: user.email, firstName: user.displayName ? user.displayName.split(' ')[0] : '' })
-        }).catch(() => {});
-      }
-      // Verify Pro status with Stripe (catches new subscribers and cancellations)
-      const isPro = await checkSubscription(user.email);
-      if (isPro) {
-        userTier = 'pro';
-        await profileRef.set({ tier:'pro' }, { merge:true });
-      } else {
-        userTier = 'free';
-        await profileRef.set({ tier:'free' }, { merge:true });
-      }
-    } catch(e) { userTier = 'free'; }
+    // Show verifying banner so user knows something is happening
+    showVerifyingBanner();
 
-    // No free tier — if not Pro, sign out and show trial prompt
-    if (userTier !== 'pro') {
+    // ── STEP 1: Check Stripe first — this is the gating decision ──
+    let isPro = false;
+    try {
+      isPro = await checkSubscription(user.email);
+    } catch(e) {
+      console.warn('Stripe check error:', e);
+    }
+
+    if (!isPro) {
+      hideVerifyingBanner();
       await fbAuth.signOut();
       showTrialModal();
       return;
     }
 
+    userTier = 'pro';
+
+    // ── STEP 2: Update Firestore profile — non-fatal if it fails ──
+    try {
+      const profileRef = fbDb.collection('users').doc(user.uid).collection('data').doc('profile');
+      const profileDoc = await profileRef.get();
+      if (!profileDoc.exists) {
+        // New user — create profile and add to mailing list
+        await profileRef.set({ email:user.email, displayName:user.displayName||user.email, tier:'pro', createdAt:firebase.firestore.FieldValue.serverTimestamp() });
+        fetch('/.netlify/functions/add-subscriber', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: user.email, firstName: user.displayName ? user.displayName.split(' ')[0] : '' })
+        }).catch(() => {});
+      } else {
+        await profileRef.set({ tier:'pro' }, { merge:true });
+      }
+    } catch(e) {
+      console.warn('Firestore profile update failed (non-fatal):', e);
+    }
+
+    hideVerifyingBanner();
     updateAuthUI(user);
     await loadCloudData();
     await loadMonitors();
@@ -1336,6 +1343,19 @@ window.addEventListener('beforeunload', () => {
     localStorage.removeItem(LS_MYSITES);
   }
 });
+
+function showVerifyingBanner() {
+  if (document.getElementById('verifying-banner')) return;
+  const el = document.createElement('div');
+  el.id = 'verifying-banner';
+  el.style.cssText = 'position:fixed;top:0;left:0;right:0;background:var(--accent);color:#fff;text-align:center;padding:10px;font-size:0.83rem;font-weight:600;z-index:9999;letter-spacing:0.02em;';
+  el.textContent = '⏳ Verifying your Pro subscription…';
+  document.body.prepend(el);
+}
+function hideVerifyingBanner() {
+  const el = document.getElementById('verifying-banner');
+  if (el) el.remove();
+}
 
 function updateAuthUI(user) {
   const signInBtn = document.getElementById('sign-in-btn');
