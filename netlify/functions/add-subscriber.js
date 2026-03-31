@@ -17,7 +17,8 @@ exports.handler = async (event) => {
     // Systeme.io API requires fields as an array with slug/value pairs
     const payload = JSON.stringify({
       email,
-      fields: firstName ? [{ slug: 'first_name', value: firstName }] : []
+      fields: firstName ? [{ slug: 'first_name', value: firstName }] : [],
+      tags: [{ id: 1943782 }]
     });
 
     const result = await new Promise((resolve, reject) => {
