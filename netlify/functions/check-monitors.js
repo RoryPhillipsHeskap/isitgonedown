@@ -213,9 +213,15 @@ exports.handler = async (event) => {
 
     console.log(`${monitor.displayUrl}: ${monitor.lastStatus} → ${newStatus} (${elapsed}ms)`);
 
-    // Send alert if status changed
+    // Send alert if:
+    // - site just went DOWN (from up or unknown)
+    // - site came back UP (from down)
+    const wasDown = monitor.lastStatus === 'down';
+    const isDown  = newStatus === 'down';
+    const shouldAlert = (isDown && !wasDown) || (!isDown && wasDown);
+
     let alertSent = monitor.lastAlertSent;
-    if (newStatus !== monitor.lastStatus && monitor.lastStatus !== 'unknown') {
+    if (shouldAlert) {
       try {
         await sendAlert(monitor.email, monitor.displayUrl, newStatus, monitor.url);
         alertSent = now;
