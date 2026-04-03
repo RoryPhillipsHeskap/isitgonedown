@@ -911,6 +911,7 @@ async function startCheck() {
   if (!res) { btn.disabled=false; btn.textContent='Check it'; return; }
 
   document.getElementById('result-area').innerHTML = buildCard(res);
+  fetchFirestoreVotes(res.url, res.dUrl.replace(/'/g,"\\'")); // load shared vote counts
   showClearBtn();
   renderWatchlist(res);
   if (res.status!=='up') document.getElementById('vpn-banner').classList.add('visible');
@@ -1010,32 +1011,71 @@ function copyLink(dUrl, btn) {
   }).catch(()=>{ prompt('Copy this link:',link); });
 }
 
+function urlToVoteDocId(url) {
+  // Safe Firestore doc ID from URL
+  return url.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 100);
+}
+
 function loadVotes(url) {
+  // Returns localStorage myVote only — shared counts come from Firestore async
   try {
     const all=JSON.parse(localStorage.getItem(LS_VOTES)||'{}');
-    const d=all[bucketKey(url)]||{down:0,up:0,mine:null};
-    return {downCount:d.down,upCount:d.up,myVote:d.mine};
+    const d=all[bucketKey(url)]||{mine:null};
+    return {downCount:0,upCount:0,myVote:d.mine};
   } catch { return {downCount:0,upCount:0,myVote:null}; }
 }
 
-function castVote(encUrl,vote,dUrl) {
+async function fetchFirestoreVotes(url, safeD) {
+  try {
+    const docId = urlToVoteDocId(url);
+    const doc = await fbDb.collection('communityVotes').doc(docId).get();
+    if (!doc.exists) return;
+    const data = doc.data();
+    const downCount = data.downCount || 0;
+    const upCount   = data.upCount   || 0;
+    const elDown = document.getElementById(`vc-down-${safeD}`);
+    const elUp   = document.getElementById(`vc-up-${safeD}`);
+    const elSum  = document.getElementById(`vs-${safeD}`);
+    if (elDown) elDown.textContent = downCount;
+    if (elUp)   elUp.textContent   = upCount;
+    if (elSum)  elSum.textContent  = renderVoteSummary({downCount, upCount});
+  } catch(e) { console.warn('fetchFirestoreVotes:', e); }
+}
+
+async function castVote(encUrl,vote,dUrl) {
   const url=decodeURIComponent(encUrl), key=bucketKey(url);
   try {
+    // Update localStorage for myVote tracking
     const all=JSON.parse(localStorage.getItem(LS_VOTES)||'{}');
-    const d=all[key]||{down:0,up:0,mine:null};
-    if(d.mine===vote){d[vote]=Math.max(0,d[vote]-1);d.mine=null;}
-    else{if(d.mine)d[d.mine]=Math.max(0,d[d.mine]-1);d[vote]++;d.mine=vote;}
+    const d=all[key]||{mine:null};
+    const isToggle = d.mine === vote;
+    const prevVote = d.mine;
+    d.mine = isToggle ? null : vote;
     all[key]=d; localStorage.setItem(LS_VOTES,JSON.stringify(all));
-    document.getElementById(`vc-down-${dUrl}`).textContent=d.down;
-    document.getElementById(`vc-up-${dUrl}`).textContent=d.up;
-    document.getElementById(`vd-${dUrl}`).classList.toggle('active',d.mine==='down');
-    document.getElementById(`vu-${dUrl}`).classList.toggle('active',d.mine==='up');
-    document.getElementById(`vs-${dUrl}`).textContent=renderVoteSummary({downCount:d.down,upCount:d.up});
-  } catch(e){console.warn(e);}
+
+    // Update button active states immediately
+    document.getElementById(`vd-${dUrl}`).classList.toggle('active', d.mine==='down');
+    document.getElementById(`vu-${dUrl}`).classList.toggle('active', d.mine==='up');
+
+    // Write increment to Firestore
+    const docId = urlToVoteDocId(url);
+    const update = { lastUpdated: firebase.firestore.FieldValue.serverTimestamp() };
+    if (isToggle) {
+      update[`${vote}Count`] = firebase.firestore.FieldValue.increment(-1);
+    } else {
+      update[`${vote}Count`] = firebase.firestore.FieldValue.increment(1);
+      if (prevVote) update[`${prevVote}Count`] = firebase.firestore.FieldValue.increment(-1);
+    }
+    await fbDb.collection('communityVotes').doc(docId).set(update, { merge: true });
+
+    // Re-fetch and update displayed counts
+    await fetchFirestoreVotes(url, dUrl);
+  } catch(e){ console.warn('castVote:', e); }
 }
 
 function renderVoteSummary({downCount,upCount}) {
   const t=downCount+upCount; if(!t) return '';
+  if (downCount > 5) return `🔴 ${downCount} people reporting issues`;
   return `${t} report${t!==1?'s':''} · ${Math.round(downCount/t*100)}% say down`;
 }
 
