@@ -264,7 +264,9 @@
     .ad-sidebar ins { display:block; margin:0 auto; }
 
     /* ── HERO ── */
-    .hero { text-align:center; padding:44px 0 36px; }
+    .hero { text-align:center; padding:44px 0 36px; position:relative; }
+    .hero::before { content:''; position:absolute; top:-60px; left:50%; transform:translateX(-50%); width:600px; height:320px; background:radial-gradient(ellipse at center, rgba(124,111,247,0.18) 0%, transparent 70%); pointer-events:none; z-index:0; }
+    .hero > * { position:relative; z-index:1; }
     .hero-badge { display:inline-flex; align-items:center; gap:6px; background:var(--accent-dim); border:1px solid rgba(124,111,247,0.25); border-radius:999px; padding:4px 12px; font-size:0.73rem; font-weight:500; color:var(--accent); margin-bottom:18px; }
     .hero-badge::before { content:'●'; font-size:0.44rem; animation:pulse 2s infinite; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
@@ -288,10 +290,11 @@
     .input-row input { flex:1; }
     .input-row input::placeholder, .bulk-input::placeholder { color:var(--text-faint); }
     .input-row input:focus, .bulk-input:focus { border-color:var(--accent); }
-    .btn-primary { background:var(--accent); color:#fff; border:none; border-radius:var(--radius-sm); padding:13px 24px; font-size:0.93rem; font-weight:600; font-family:var(--font); cursor:pointer; white-space:nowrap; transition:opacity 0.15s,transform 0.1s; }
-    .btn-primary:hover:not(:disabled) { opacity:0.87; }
+    .btn-primary { background:var(--accent); color:#fff; border:none; border-radius:var(--radius-sm); padding:13px 24px; font-size:0.93rem; font-weight:600; font-family:var(--font); cursor:pointer; white-space:nowrap; transition:opacity 0.15s,transform 0.1s,box-shadow 0.15s; box-shadow:0 0 0 0 rgba(124,111,247,0.5); animation:btnPulse 2.5s infinite; }
+    @keyframes btnPulse { 0%,100%{box-shadow:0 0 0 0 rgba(124,111,247,0.4)} 50%{box-shadow:0 0 0 7px rgba(124,111,247,0)} }
+    .btn-primary:hover:not(:disabled) { opacity:0.9; transform:translateY(-1px); box-shadow:0 4px 18px rgba(124,111,247,0.45); animation:none; }
     .btn-primary:active:not(:disabled) { transform:scale(0.97); }
-    .btn-primary:disabled { opacity:0.4; cursor:not-allowed; }
+    .btn-primary:disabled { opacity:0.4; cursor:not-allowed; animation:none; }
     .bulk-inputs { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
     .bulk-row { display:flex; gap:8px; align-items:center; }
     .bulk-num { font-size:0.74rem; color:var(--text-faint); width:18px; text-align:right; flex-shrink:0; }
@@ -304,11 +307,14 @@
     .popular-section h2 { font-size:0.71rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); margin-bottom:10px; }
     .popular-grid { display:flex; flex-wrap:wrap; gap:7px; }
     .pop-btn { display:flex; align-items:center; gap:7px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:8px 13px; font-size:0.79rem; font-weight:500; font-family:var(--font); color:var(--text-muted); cursor:pointer; transition:all 0.15s; }
-    .pop-btn:hover { border-color:var(--accent); color:var(--text); }
+    .pop-btn:hover { border-color:var(--accent); color:var(--text); background:var(--accent-dim); transform:translateY(-1px); box-shadow:0 3px 10px rgba(124,111,247,0.15); }
 
     /* ── RESULT CARD ── */
     #result-area, #bulk-result-area { margin-bottom:20px; }
-    .result-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; animation:slideUp 0.28s ease; margin-bottom:12px; }
+    .result-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; animation:slideUp 0.28s ease; margin-bottom:12px; border-left:3px solid var(--border); }
+    .result-card.up   { border-left-color:var(--up); }
+    .result-card.down { border-left-color:var(--down); }
+    .result-card.warn { border-left-color:var(--warn); }
     @keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
     .result-bar { height:4px; width:100%; }
     .result-bar.up { background:var(--up); }
@@ -791,6 +797,7 @@
 </div>
 
 <footer>
+  <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:6px;">Instant website status checks — free, fast, and private.</p>
   <p>© 2026 IsItGoneDown.com — Website by <a href="https://heskap.com" target="_blank" rel="noopener">Heskap</a>. All rights reserved. No tracking.</p>
   <div class="footer-links">
     <a href="#about">About</a>
