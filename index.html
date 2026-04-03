@@ -216,6 +216,20 @@
     .monitors-interval-select { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:7px 10px; font-size:0.78rem; color:var(--text); font-family:var(--font); outline:none; cursor:pointer; }
     .monitors-add-btn { background:var(--accent); color:#fff; border:none; border-radius:var(--radius-sm); padding:7px 14px; font-size:0.78rem; font-weight:600; cursor:pointer; font-family:var(--font); white-space:nowrap; transition:opacity 0.15s; }
     .monitors-add-btn:hover { opacity:0.85; }
+    .monitors-email-row { display:flex; align-items:center; gap:8px; margin-top:6px; }
+    .monitors-email-input { flex:1; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:6px 12px; font-size:0.76rem; color:var(--text); font-family:var(--font); outline:none; transition:border-color 0.15s; }
+    .monitors-email-input:focus { border-color:var(--accent); }
+    .monitors-email-input::placeholder { color:var(--text-faint); }
+    .monitor-history-btn { background:none; border:1px solid var(--border); border-radius:6px; padding:2px 8px; font-size:0.68rem; color:var(--text-faint); cursor:pointer; font-family:var(--font); transition:all 0.15s; white-space:nowrap; }
+    .monitor-history-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .monitor-detail { background:var(--surface-2); border-top:1px solid var(--border); padding:12px 14px; display:none; }
+    .monitor-detail.open { display:block; }
+    .monitor-sparkline { width:100%; height:48px; display:block; margin-bottom:10px; }
+    .incident-table { width:100%; border-collapse:collapse; font-size:0.72rem; }
+    .incident-table th { text-align:left; color:var(--text-faint); font-weight:600; padding:3px 6px; border-bottom:1px solid var(--border); }
+    .incident-table td { padding:4px 6px; color:var(--text-muted); border-bottom:1px solid var(--border-soft); }
+    .incident-table tr:last-child td { border-bottom:none; }
+    .no-incidents { font-size:0.73rem; color:var(--text-faint); font-style:italic; }
     .monitors-list { display:flex; flex-direction:column; gap:8px; }
     .monitor-item { display:flex; align-items:center; gap:10px; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:9px 12px; }
     .monitor-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
@@ -634,6 +648,9 @@
         <option value="60">Every 60 min</option>
       </select>
       <button class="monitors-add-btn" onclick="addMonitor()">+ Monitor</button>
+    </div>
+    <div class="monitors-email-row">
+      <input class="monitors-email-input" id="monitor-extra-emails" type="text" placeholder="Extra alert emails (optional) — comma-separated e.g. colleague@example.com"/>
     </div>
     <div class="monitors-list" id="monitors-list">
       <span class="monitors-empty">No monitors yet — add a site above to get email alerts when it goes down.</span>
@@ -1636,18 +1653,22 @@ renderHistory(); // show locked state immediately for guests
 // ── MONITORS ──
 async function addMonitor() {
   if (!currentUser || userTier !== 'pro') return;
-  const input    = document.getElementById('monitor-url-input');
+  const input      = document.getElementById('monitor-url-input');
   const intervalEl = document.getElementById('monitor-interval');
-  const val      = input.value.trim();
+  const extraEl    = document.getElementById('monitor-extra-emails');
+  const val        = input.value.trim();
   if (!val) return;
   const dUrl     = displayUrl(val);
   const url      = normalise(val);
   if (!url) return;
   const interval = parseInt(intervalEl.value);
+  // Build comma-separated email list (account email + any extras)
+  const extraEmails = (extraEl ? extraEl.value : '').split(',').map(e => e.trim()).filter(e => e && e !== currentUser.email);
+  const allEmails = [currentUser.email, ...extraEmails].join(',');
   try {
     await fbDb.collection('monitors').add({
       userId:      currentUser.uid,
-      email:       currentUser.email,
+      email:       allEmails,
       url,
       displayUrl:  dUrl,
       interval,
@@ -1658,6 +1679,7 @@ async function addMonitor() {
       createdAt:   firebase.firestore.FieldValue.serverTimestamp()
     });
     input.value = '';
+    if (extraEl) extraEl.value = '';
     await loadMonitors();
   } catch(e) { console.error('addMonitor:', e); }
 }
@@ -1683,8 +1705,73 @@ async function loadMonitors() {
       .get();
     const monitors = [];
     snap.forEach(doc => monitors.push({ id: doc.id, ...doc.data() }));
+
+    // Load history + incidents for each monitor in parallel
+    await Promise.all(monitors.map(async m => {
+      try {
+        const histSnap = await fbDb.collection('monitors').doc(m.id)
+          .collection('history').orderBy('t', 'desc').limit(48).get();
+        m._history = [];
+        histSnap.forEach(d => m._history.unshift(d.data())); // oldest first
+      } catch(e) { m._history = []; }
+
+      try {
+        const incSnap = await fbDb.collection('incidents')
+          .where('monitorId', '==', m.id)
+          .orderBy('startTime', 'desc').limit(5).get();
+        m._incidents = [];
+        incSnap.forEach(d => m._incidents.push(d.data()));
+      } catch(e) { m._incidents = []; }
+    }));
+
     renderMonitors(monitors);
   } catch(e) { renderMonitors([]); }
+}
+
+function buildSparkline(history) {
+  if (!history || history.length < 2) return '<p class="no-incidents">Not enough data yet — check back after a few cycles.</p>';
+  const W = 400, H = 48, pad = 4;
+  const times = history.map(h => h.t && h.t.toDate ? h.t.toDate().getTime() : new Date(h.t).getTime());
+  const vals  = history.map(h => h.ms || 0);
+  const maxMs = Math.max(...vals, 1);
+  const minT  = Math.min(...times), rangeT = Math.max(...times) - minT || 1;
+  const pts = history.map((h, i) => {
+    const x = pad + ((times[i] - minT) / rangeT) * (W - pad * 2);
+    const y = H - pad - ((vals[i] / maxMs) * (H - pad * 2));
+    return { x, y, s: h.s, ms: vals[i] };
+  });
+  const polyline = pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const dots = pts.map(p => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" fill="${p.s === 'up' ? '#22c55e' : p.s === 'down' ? '#ef4444' : '#f59e0b'}" opacity="0.9"><title>${p.ms}ms — ${p.s}</title></circle>`).join('');
+  return `<svg class="monitor-sparkline" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <polyline points="${polyline}" fill="none" stroke="#7c6ff7" stroke-width="1.5" opacity="0.5"/>
+    ${dots}
+  </svg>`;
+}
+
+function buildIncidentTable(incidents) {
+  if (!incidents || !incidents.length) return '<p class="no-incidents">No incidents recorded yet.</p>';
+  const rows = incidents.map(inc => {
+    const start = inc.startTime && inc.startTime.toDate ? inc.startTime.toDate() : new Date(inc.startTime);
+    const dur   = inc.durationMins;
+    const durStr = dur < 60 ? `${dur}m` : `${Math.floor(dur/60)}h ${dur%60}m`;
+    return `<tr>
+      <td>${start.toLocaleDateString([], {day:'numeric',month:'short'})}</td>
+      <td>${start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</td>
+      <td style="color:#ef4444;">${durStr}</td>
+    </tr>`;
+  }).join('');
+  return `<table class="incident-table">
+    <thead><tr><th>Date</th><th>Time (down)</th><th>Duration</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function toggleMonitorDetail(id) {
+  const el = document.getElementById('monitor-detail-' + id);
+  if (!el) return;
+  el.classList.toggle('open');
+  const btn = document.getElementById('monitor-hist-btn-' + id);
+  if (btn) btn.textContent = el.classList.contains('open') ? '▲ History' : '▼ History';
 }
 
 function renderMonitors(monitors) {
@@ -1699,13 +1786,23 @@ function renderMonitors(monitors) {
     const lastCheckedStr = m.lastChecked ? new Date(m.lastChecked.toDate ? m.lastChecked.toDate() : m.lastChecked).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : 'Pending';
     const spd = m.lastResponseTime ? speedLabel(m.lastResponseTime) : null;
     const spdHtml = spd ? `<span class="speed-chip ${spd.cls}" style="font-size:0.66rem;padding:2px 7px;">${m.lastResponseTime}ms</span>` : '';
+    const sparkSvg = buildSparkline(m._history);
+    const incidentHtml = buildIncidentTable(m._incidents);
+    const safeId = m.id.replace(/[^a-zA-Z0-9]/g, '');
     return `<div class="monitor-item">
       <div class="monitor-dot ${statusClass}"></div>
       <span class="monitor-url" title="${m.displayUrl}">${m.displayUrl}</span>
       ${spdHtml}
       <span class="monitor-interval">Every ${m.interval} min</span>
       <span class="monitor-last">${lastCheckedStr}</span>
+      <button class="monitor-history-btn" id="monitor-hist-btn-${safeId}" onclick="toggleMonitorDetail('${safeId}')">▼ History</button>
       <button class="monitor-remove" onclick="removeMonitor('${m.id}')" title="Remove monitor">×</button>
+    </div>
+    <div class="monitor-detail" id="monitor-detail-${safeId}">
+      <div style="font-size:0.7rem;color:var(--text-faint);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Response Time (last ${m._history.length} checks)</div>
+      ${sparkSvg}
+      <div style="font-size:0.7rem;color:var(--text-faint);margin:10px 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Incident History</div>
+      ${incidentHtml}
     </div>`;
   }).join('');
 }

@@ -77,41 +77,60 @@ async function getActiveMonitors() {
       const d = r.document;
       const f = d.fields || {};
       const docId = d.name.split('/').pop();
-      // Parse lastChecked timestamp
       let lastChecked = null;
       if (f.lastChecked && f.lastChecked.timestampValue) {
         lastChecked = new Date(f.lastChecked.timestampValue);
       }
+      let downSince = null;
+      if (f.downSince && f.downSince.timestampValue) {
+        downSince = new Date(f.downSince.timestampValue);
+      }
+      // Support comma-separated emails for multiple recipients
+      const emailRaw = f.email?.stringValue || '';
+      const emails = emailRaw.split(',').map(e => e.trim()).filter(Boolean);
       return {
         docId,
-        userId:      f.userId?.stringValue || '',
-        email:       f.email?.stringValue || '',
-        url:         f.url?.stringValue || '',
-        displayUrl:  f.displayUrl?.stringValue || '',
-        interval:    parseInt(f.interval?.integerValue || f.interval?.doubleValue || 15),
+        userId:           f.userId?.stringValue || '',
+        emails,
+        email:            emailRaw,
+        url:              f.url?.stringValue || '',
+        displayUrl:       f.displayUrl?.stringValue || '',
+        interval:         parseInt(f.interval?.integerValue || f.interval?.doubleValue || 15),
         lastStatus:       f.lastStatus?.stringValue || 'unknown',
         lastChecked,
+        downSince,
         lastAlertSent:    f.lastAlertSent?.timestampValue ? new Date(f.lastAlertSent.timestampValue) : null,
         lastResponseTime: f.lastResponseTime ? parseInt(f.lastResponseTime.integerValue || f.lastResponseTime.doubleValue || 0) : null
       };
     })
-    .filter(m => m.url && m.email);
+    .filter(m => m.url && m.emails.length > 0);
 }
 
 // ── Firestore REST: update monitor status ────────────────────
-async function updateMonitorStatus(docId, lastStatus, lastChecked, lastAlertSent, lastResponseTime) {
+async function updateMonitorStatus(docId, lastStatus, lastChecked, lastAlertSent, lastResponseTime, downSince, clearDownSince) {
   const fields = {
     lastStatus:  { stringValue: lastStatus },
     lastChecked: { timestampValue: lastChecked.toISOString() }
   };
-  if (lastAlertSent) fields.lastAlertSent = { timestampValue: lastAlertSent.toISOString() };
-  if (lastResponseTime) fields.lastResponseTime = { integerValue: lastResponseTime };
+  let mask = 'updateMask.fieldPaths=lastStatus&updateMask.fieldPaths=lastChecked';
+
+  if (lastAlertSent) {
+    fields.lastAlertSent = { timestampValue: lastAlertSent.toISOString() };
+    mask += '&updateMask.fieldPaths=lastAlertSent';
+  }
+  if (lastResponseTime) {
+    fields.lastResponseTime = { integerValue: lastResponseTime };
+    mask += '&updateMask.fieldPaths=lastResponseTime';
+  }
+  if (downSince) {
+    fields.downSince = { timestampValue: downSince.toISOString() };
+    mask += '&updateMask.fieldPaths=downSince';
+  } else if (clearDownSince) {
+    fields.downSince = { nullValue: null };
+    mask += '&updateMask.fieldPaths=downSince';
+  }
 
   const payload = JSON.stringify({ fields });
-  let mask = 'updateMask.fieldPaths=lastStatus&updateMask.fieldPaths=lastChecked';
-  if (lastAlertSent) mask += '&updateMask.fieldPaths=lastAlertSent';
-  if (lastResponseTime) mask += '&updateMask.fieldPaths=lastResponseTime';
-
   await request({
     hostname: 'firestore.googleapis.com',
     path: `/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents/monitors/${docId}?${mask}&key=${FIREBASE_API_KEY}`,
@@ -120,12 +139,63 @@ async function updateMonitorStatus(docId, lastStatus, lastChecked, lastAlertSent
   }, payload);
 }
 
+// ── Firestore REST: write incident record ────────────────────
+async function writeIncident(docId, userId, displayUrl, startTime, endTime, durationMins) {
+  const fields = {
+    monitorId:    { stringValue: docId },
+    userId:       { stringValue: userId },
+    displayUrl:   { stringValue: displayUrl },
+    startTime:    { timestampValue: startTime.toISOString() },
+    endTime:      { timestampValue: endTime.toISOString() },
+    durationMins: { integerValue: Math.round(durationMins) }
+  };
+  const payload = JSON.stringify({ fields });
+  await request({
+    hostname: 'firestore.googleapis.com',
+    path: `/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents/incidents?key=${FIREBASE_API_KEY}`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) }
+  }, payload);
+}
+
+// ── Firestore REST: append response time history ─────────────
+async function appendHistory(docId, timestamp, responseTime, status) {
+  // Store as a simple sub-collection document
+  const fields = {
+    t:  { timestampValue: timestamp.toISOString() },
+    ms: { integerValue: responseTime || 0 },
+    s:  { stringValue: status }
+  };
+  const payload = JSON.stringify({ fields });
+  await request({
+    hostname: 'firestore.googleapis.com',
+    path: `/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents/monitors/${docId}/history?key=${FIREBASE_API_KEY}`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) }
+  }, payload);
+}
+
+// ── Format duration for email ────────────────────────────────
+function formatDuration(minutes) {
+  if (minutes < 1)  return 'less than a minute';
+  if (minutes < 60) return `${Math.round(minutes)} minute${Math.round(minutes) === 1 ? '' : 's'}`;
+  const h = Math.floor(minutes / 60);
+  const m = Math.round(minutes % 60);
+  return m > 0 ? `${h}h ${m}m` : `${h} hour${h === 1 ? '' : 's'}`;
+}
+
 // ── Send email via Resend ────────────────────────────────────
-async function sendAlert(to, displayUrl, newStatus, url) {
+async function sendAlert(emails, displayUrl, newStatus, url, downSince) {
   const isDown = newStatus === 'down';
   const subject = isDown
     ? `🔴 ${displayUrl} is DOWN`
     : `✅ ${displayUrl} is back UP`;
+
+  let durationLine = '';
+  if (!isDown && downSince) {
+    const mins = (Date.now() - downSince.getTime()) / 60000;
+    durationLine = `<p style="margin:0 0 16px;font-size:0.88rem;color:#f59e0b;font-weight:600;">⏱ Was down for ${formatDuration(mins)}</p>`;
+  }
 
   const html = `
     <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:480px;margin:0 auto;background:#0a0a0f;color:#e4e4f0;border-radius:12px;overflow:hidden;">
@@ -135,6 +205,7 @@ async function sendAlert(to, displayUrl, newStatus, url) {
       <div style="padding:24px 28px;">
         <p style="font-size:1.1rem;font-weight:700;margin:0 0 8px;color:#fff;">${displayUrl}</p>
         <p style="margin:0 0 20px;color:#9ca3af;font-size:0.9rem;">${url}</p>
+        ${durationLine}
         <p style="margin:0 0 24px;font-size:0.9rem;color:#d1d5db;">
           ${isDown
             ? 'Our monitor detected that this site is currently unreachable. We\'ll notify you as soon as it comes back online.'
@@ -151,26 +222,28 @@ async function sendAlert(to, displayUrl, newStatus, url) {
       </div>
     </div>`;
 
-  const payload = JSON.stringify({ from: FROM_EMAIL, to, subject, html });
-  const res = await request({
-    hostname: 'api.resend.com',
-    path: '/emails',
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(payload)
-    }
-  }, payload);
-  console.log('Resend response:', res.status, JSON.stringify(res.body));
-  return res;
+  // Send to all email addresses
+  const toList = Array.isArray(emails) ? emails : [emails];
+  for (const to of toList) {
+    const payload = JSON.stringify({ from: FROM_EMAIL, to, subject, html });
+    const res = await request({
+      hostname: 'api.resend.com',
+      path: '/emails',
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(payload)
+      }
+    }, payload);
+    console.log(`Resend → ${to}:`, res.status, JSON.stringify(res.body));
+  }
 }
 
 // ── Main handler ─────────────────────────────────────────────
 exports.handler = async (event) => {
   const headers = { 'Access-Control-Allow-Origin': '*' };
 
-  // Validate cron secret
   const secret = event.headers['x-cron-secret'] || event.queryStringParameters?.secret;
   if (secret !== CRON_SECRET) {
     return { statusCode: 401, headers, body: 'Unauthorised' };
@@ -191,7 +264,7 @@ exports.handler = async (event) => {
   const results = [];
 
   for (const monitor of monitors) {
-    // Check if this monitor is due (based on interval)
+    // Check if due
     if (monitor.lastChecked) {
       const minutesSinceCheck = (now - monitor.lastChecked) / 60000;
       if (minutesSinceCheck < monitor.interval) {
@@ -213,27 +286,63 @@ exports.handler = async (event) => {
 
     console.log(`${monitor.displayUrl}: ${monitor.lastStatus} → ${newStatus} (${elapsed}ms)`);
 
-    // Send alert if:
-    // - site just went DOWN (from up or unknown)
-    // - site came back UP (from down)
     const wasDown = monitor.lastStatus === 'down';
     const isDown  = newStatus === 'down';
     const shouldAlert = (isDown && !wasDown) || (!isDown && wasDown);
 
+    // Track downSince
+    let newDownSince = monitor.downSince;
+    let clearDownSince = false;
+
+    if (isDown && !wasDown) {
+      // Just went down — record when
+      newDownSince = now;
+    } else if (!isDown && wasDown) {
+      // Just came back up — clear downSince after using it
+      clearDownSince = true;
+    }
+
+    // Send alert
     let alertSent = monitor.lastAlertSent;
     if (shouldAlert) {
       try {
-        await sendAlert(monitor.email, monitor.displayUrl, newStatus, monitor.url);
+        await sendAlert(monitor.emails, monitor.displayUrl, newStatus, monitor.url, monitor.downSince);
         alertSent = now;
-        console.log(`Alert sent to ${monitor.email} for ${monitor.displayUrl}`);
+        console.log(`Alert sent to ${monitor.emails.join(', ')} for ${monitor.displayUrl}`);
       } catch(e) {
         console.error('Failed to send alert:', e.message);
       }
     }
 
-    // Update Firestore
+    // Write incident record when site recovers
+    if (!isDown && wasDown && monitor.downSince) {
+      try {
+        const durationMins = (now - monitor.downSince) / 60000;
+        await writeIncident(monitor.docId, monitor.userId, monitor.displayUrl, monitor.downSince, now, durationMins);
+        console.log(`Incident logged: ${monitor.displayUrl} down for ${Math.round(durationMins)} mins`);
+      } catch(e) {
+        console.error('Failed to write incident:', e.message);
+      }
+    }
+
+    // Append response time history
     try {
-      await updateMonitorStatus(monitor.docId, newStatus, now, alertSent !== monitor.lastAlertSent ? alertSent : null, elapsed);
+      await appendHistory(monitor.docId, now, elapsed, newStatus);
+    } catch(e) {
+      console.error('Failed to append history:', e.message);
+    }
+
+    // Update monitor document
+    try {
+      await updateMonitorStatus(
+        monitor.docId,
+        newStatus,
+        now,
+        alertSent !== monitor.lastAlertSent ? alertSent : null,
+        elapsed,
+        isDown && !wasDown ? newDownSince : null,
+        clearDownSince
+      );
     } catch(e) {
       console.error('Failed to update monitor:', e.message);
     }
