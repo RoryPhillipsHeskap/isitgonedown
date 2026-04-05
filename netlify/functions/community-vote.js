@@ -49,7 +49,11 @@ async function setVotes(docId, downCount, upCount) {
     upCount:   { integerValue: String(upCount) }
   };
   const mask = 'updateMask.fieldPaths=downCount&updateMask.fieldPaths=upCount';
-  await httpsRequest(`${DOC_PATH}/${docId}?${mask}&key=${FIREBASE_API_KEY}`, 'PATCH', { fields });
+  const res = await httpsRequest(`${DOC_PATH}/${docId}?${mask}&key=${FIREBASE_API_KEY}`, 'PATCH', { fields });
+  if (res.status < 200 || res.status >= 300) {
+    throw new Error(`Firestore PATCH failed: ${res.status} ${JSON.stringify(res.body)}`);
+  }
+  return res;
 }
 
 exports.handler = async (event) => {
