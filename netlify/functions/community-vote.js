@@ -72,6 +72,14 @@ exports.handler = async (event) => {
   if (event.httpMethod === 'GET') {
     const url = params.url;
     if (!url) return { statusCode: 400, headers, body: JSON.stringify({ error: 'url required' }) };
+
+    // Debug endpoint: ?url=_debug_ tests a Firestore write and returns raw response
+    if (url === '_debug_') {
+      const testFields = { downCount: { integerValue: '0' }, upCount: { integerValue: '0' } };
+      const raw = await httpsRequest(`${DOC_PATH}/_debug_test_?key=${FIREBASE_API_KEY}`, 'PATCH', { fields: testFields });
+      return { statusCode: 200, headers, body: JSON.stringify({ firestoreStatus: raw.status, firestoreBody: raw.body, apiKeySet: !!FIREBASE_API_KEY }) };
+    }
+
     const votes = await getVotes(urlToDocId(url));
     return { statusCode: 200, headers, body: JSON.stringify(votes) };
   }
