@@ -1057,6 +1057,11 @@ async function castVote(encUrl,vote,dUrl) {
     document.getElementById(`vd-${dUrl}`).classList.toggle('active', d.mine==='down');
     document.getElementById(`vu-${dUrl}`).classList.toggle('active', d.mine==='up');
 
+    // Ensure we have a Firebase identity (anonymous if not logged in)
+    if (!fbAuth.currentUser) {
+      try { await fbAuth.signInAnonymously(); } catch(e) { console.warn('anon auth failed:', e); }
+    }
+
     // Write increment to Firestore
     const docId = urlToVoteDocId(url);
     const update = { lastUpdated: firebase.firestore.FieldValue.serverTimestamp() };
