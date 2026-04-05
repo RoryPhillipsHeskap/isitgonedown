@@ -48,8 +48,8 @@ async function setVotes(docId, downCount, upCount) {
     downCount: { integerValue: String(downCount) },
     upCount:   { integerValue: String(upCount) }
   };
-  const mask = 'updateMask.fieldPaths=downCount&updateMask.fieldPaths=upCount';
-  const res = await httpsRequest(`${DOC_PATH}/${docId}?${mask}&key=${FIREBASE_API_KEY}`, 'PATCH', { fields });
+  // No updateMask — this creates the document if it doesn't exist, or replaces it if it does
+  const res = await httpsRequest(`${DOC_PATH}/${docId}?key=${FIREBASE_API_KEY}`, 'PATCH', { fields });
   if (res.status < 200 || res.status >= 300) {
     throw new Error(`Firestore PATCH failed: ${res.status} ${JSON.stringify(res.body)}`);
   }
