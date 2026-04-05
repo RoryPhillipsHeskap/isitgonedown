@@ -1027,10 +1027,9 @@ function loadVotes(url) {
 
 async function fetchFirestoreVotes(url, safeD) {
   try {
-    const docId = urlToVoteDocId(url);
-    const doc = await fbDb.collection('communityVotes').doc(docId).get();
-    if (!doc.exists) return;
-    const data = doc.data();
+    const res = await fetch(`/.netlify/functions/community-vote?url=${encodeURIComponent(url)}`);
+    if (!res.ok) return;
+    const data = await res.json();
     const downCount = data.downCount || 0;
     const upCount   = data.upCount   || 0;
     const elDown = document.getElementById(`vc-down-${safeD}`);
@@ -1042,40 +1041,47 @@ async function fetchFirestoreVotes(url, safeD) {
   } catch(e) { console.warn('fetchFirestoreVotes:', e); }
 }
 
-async function castVote(encUrl,vote,dUrl) {
-  const url=decodeURIComponent(encUrl), key=bucketKey(url);
+async function castVote(encUrl, vote, dUrl) {
+  const url = decodeURIComponent(encUrl), key = bucketKey(url);
   try {
-    // Update localStorage for myVote tracking
-    const all=JSON.parse(localStorage.getItem(LS_VOTES)||'{}');
-    const d=all[key]||{mine:null};
+    // Track myVote in localStorage for button highlight state
+    const all = JSON.parse(localStorage.getItem(LS_VOTES) || '{}');
+    const d = all[key] || { mine: null };
     const isToggle = d.mine === vote;
     const prevVote = d.mine;
     d.mine = isToggle ? null : vote;
-    all[key]=d; localStorage.setItem(LS_VOTES,JSON.stringify(all));
+    all[key] = d;
+    localStorage.setItem(LS_VOTES, JSON.stringify(all));
 
     // Update button active states immediately
-    document.getElementById(`vd-${dUrl}`).classList.toggle('active', d.mine==='down');
-    document.getElementById(`vu-${dUrl}`).classList.toggle('active', d.mine==='up');
+    document.getElementById(`vd-${dUrl}`).classList.toggle('active', d.mine === 'down');
+    document.getElementById(`vu-${dUrl}`).classList.toggle('active', d.mine === 'up');
 
-    // Ensure we have a Firebase identity (anonymous if not logged in)
-    if (!fbAuth.currentUser) {
-      try { await fbAuth.signInAnonymously(); } catch(e) { console.warn('anon auth failed:', e); }
+    // Handle previous vote reversal via server
+    if (!isToggle && prevVote) {
+      await fetch('/.netlify/functions/community-vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, vote: prevVote, action: 'remove' })
+      });
     }
 
-    // Write increment to Firestore
-    const docId = urlToVoteDocId(url);
-    const update = { lastUpdated: firebase.firestore.FieldValue.serverTimestamp() };
-    if (isToggle) {
-      update[`${vote}Count`] = firebase.firestore.FieldValue.increment(-1);
-    } else {
-      update[`${vote}Count`] = firebase.firestore.FieldValue.increment(1);
-      if (prevVote) update[`${prevVote}Count`] = firebase.firestore.FieldValue.increment(-1);
-    }
-    await fbDb.collection('communityVotes').doc(docId).set(update, { merge: true });
+    // Cast new vote (or remove if toggling off)
+    const res = await fetch('/.netlify/functions/community-vote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, vote, action: isToggle ? 'remove' : 'add' })
+    });
+    const data = await res.json();
 
-    // Re-fetch and update displayed counts
-    await fetchFirestoreVotes(url, dUrl);
-  } catch(e){ console.warn('castVote:', e); }
+    // Update counts in UI
+    const elDown = document.getElementById(`vc-down-${dUrl}`);
+    const elUp   = document.getElementById(`vc-up-${dUrl}`);
+    const elSum  = document.getElementById(`vs-${dUrl}`);
+    if (elDown) elDown.textContent = data.downCount || 0;
+    if (elUp)   elUp.textContent   = data.upCount   || 0;
+    if (elSum)  elSum.textContent  = renderVoteSummary({ downCount: data.downCount || 0, upCount: data.upCount || 0 });
+  } catch(e) { console.warn('castVote:', e); }
 }
 
 function renderVoteSummary({downCount,upCount}) {
