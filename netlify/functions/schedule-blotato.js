@@ -250,8 +250,10 @@ exports.handler = async (event) => {
 
   // Fetch Facebook pageId from subaccounts (required by Blotato API for Facebook posts)
   let facebookPageId = null;
+  let facebookSubaccountsDebug = null;
   try {
     const sub = await fetchSubaccounts('25818');
+    facebookSubaccountsDebug = sub; // include raw response in output for debugging
     console.log('Facebook subaccounts:', JSON.stringify(sub));
     if (sub.status === 200 && sub.body) {
       const list = sub.body.subaccounts || sub.body.accounts || sub.body;
@@ -261,6 +263,7 @@ exports.handler = async (event) => {
     }
   } catch (e) {
     console.error('Could not fetch Facebook subaccounts:', e.message);
+    facebookSubaccountsDebug = { error: e.message };
   }
   console.log('Using facebookPageId:', facebookPageId);
 
@@ -313,6 +316,8 @@ exports.handler = async (event) => {
       message: `Scheduling complete. ${successCount} posts queued, ${errorCount} errors.`,
       successCount,
       errorCount,
+      facebookPageId,
+      facebookSubaccountsDebug,
       results,
     }),
   };
