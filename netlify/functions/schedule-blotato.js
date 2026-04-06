@@ -162,23 +162,34 @@ const CONTENT = [
   },
 ];
 
-// Blotato account IDs
+// Blotato account IDs — accountId must be a string per Blotato v2 API
 const ACCOUNTS = [
-  { id: 15712, platform: 'Twitter',   contentKey: 'twitter'  },
-  { id: 17133, platform: 'LinkedIn',  contentKey: 'linkedin' },
-  { id: 25818, platform: 'Facebook',  contentKey: 'facebook' },
-  { id: 39553, platform: 'Instagram', contentKey: 'facebook' }, // Instagram uses Facebook content
+  { id: '15712', platformKey: 'twitter',   contentKey: 'twitter'  },
+  { id: '17133', platformKey: 'linkedin',  contentKey: 'linkedin' },
+  { id: '25818', platformKey: 'facebook',  contentKey: 'facebook', needsPageId: true },
+  { id: '39553', platformKey: 'instagram', contentKey: 'facebook' }, // Instagram uses Facebook text
 ];
 
-function schedulePost(accountId, text, scheduledFor) {
+// Blotato v2 API: POST body structure per docs at help.blotato.com/api/publish-post
+// - post.content: { text, mediaUrls: [], platform }
+// - post.target: { targetType, [pageId for facebook] }
+// - scheduledTime is a ROOT-LEVEL field (sibling of post, NOT inside it)
+function schedulePost(accountId, text, platformKey, scheduledTime, extraTarget = {}) {
   return new Promise((resolve, reject) => {
     const bodyStr = JSON.stringify({
       post: {
         accountId,
-        text,
-        postingType: 'scheduled',
-        scheduledFor,
+        content: {
+          text,
+          mediaUrls: [],
+          platform: platformKey,
+        },
+        target: {
+          targetType: platformKey,
+          ...extraTarget,
+        },
       },
+      scheduledTime, // top-level, not inside post
     });
     const req = https.request({
       hostname: 'backend.blotato.com',
@@ -203,6 +214,27 @@ function schedulePost(accountId, text, scheduledFor) {
   });
 }
 
+// Fetch Facebook subaccounts to get the pageId required by the Blotato API
+function fetchSubaccounts(accountId) {
+  return new Promise((resolve, reject) => {
+    const req = https.request({
+      hostname: 'backend.blotato.com',
+      path: `/v2/users/me/accounts/${accountId}/subaccounts`,
+      method: 'GET',
+      headers: { 'blotato-api-key': BLOTATO_API_KEY },
+    }, (res) => {
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => {
+        try { resolve({ status: res.statusCode, body: JSON.parse(data) }); }
+        catch (e) { resolve({ status: res.statusCode, body: data }); }
+      });
+    });
+    req.on('error', reject);
+    req.end();
+  });
+}
+
 exports.handler = async (event) => {
   // Safety guard: require ?confirm=yes so this can't be triggered accidentally
   const confirm = event.queryStringParameters && event.queryStringParameters.confirm;
@@ -215,6 +247,22 @@ exports.handler = async (event) => {
 
   // ?test=1 runs only Day 1 so you can check the API response before scheduling everything
   const testMode = event.queryStringParameters && event.queryStringParameters.test === '1';
+
+  // Fetch Facebook pageId from subaccounts (required by Blotato API for Facebook posts)
+  let facebookPageId = null;
+  try {
+    const sub = await fetchSubaccounts('25818');
+    console.log('Facebook subaccounts:', JSON.stringify(sub));
+    if (sub.status === 200 && sub.body) {
+      const list = sub.body.subaccounts || sub.body.accounts || sub.body;
+      if (Array.isArray(list) && list.length > 0) {
+        facebookPageId = list[0].id || list[0].accountId || list[0].pageId;
+      }
+    }
+  } catch (e) {
+    console.error('Could not fetch Facebook subaccounts:', e.message);
+  }
+  console.log('Using facebookPageId:', facebookPageId);
 
   const results = [];
   let successCount = 0;
@@ -229,31 +277,32 @@ exports.handler = async (event) => {
     // Build the scheduled date: CAMPAIGN_START + dayIndex days, at POST_HOUR_UTC:00:00 UTC
     const postDate = new Date(`${CAMPAIGN_START_DATE}T${String(POST_HOUR_UTC).padStart(2, '0')}:00:00Z`);
     postDate.setUTCDate(postDate.getUTCDate() + dayIndex);
-    const scheduledFor = postDate.toISOString(); // e.g. "2026-04-07T09:00:00.000Z"
+    const scheduledTime = postDate.toISOString(); // e.g. "2026-04-07T09:00:00.000Z"
 
     for (const account of ACCOUNTS) {
       const text = dayContent[account.contentKey];
+      const extraTarget = (account.needsPageId && facebookPageId) ? { pageId: facebookPageId } : {};
       try {
-        const result = await schedulePost(account.id, text, scheduledFor);
+        const result = await schedulePost(account.id, text, account.platformKey, scheduledTime, extraTarget);
         const success = result.status >= 200 && result.status < 300;
         results.push({
           day: dayNumber,
-          platform: account.platform,
-          scheduledFor,
+          platform: account.platformKey,
+          scheduledTime,
           status: result.status,
           ok: success,
           body: result.body,
         });
         if (success) successCount++; else errorCount++;
-        console.log(`Day ${dayNumber} ${account.platform}: ${result.status} — ${scheduledFor}`);
+        console.log(`Day ${dayNumber} ${account.platformKey}: ${result.status} — ${scheduledTime}`);
       } catch (err) {
-        results.push({ day: dayNumber, platform: account.platform, scheduledFor, error: err.message });
+        results.push({ day: dayNumber, platform: account.platformKey, scheduledTime, error: err.message });
         errorCount++;
-        console.error(`Day ${dayNumber} ${account.platform} ERROR:`, err.message);
+        console.error(`Day ${dayNumber} ${account.platformKey} ERROR:`, err.message);
       }
 
-      // Delay to avoid rate-limiting (Blotato allows ~10 req/s)
-      await new Promise(r => setTimeout(r, 500));
+      // Delay to avoid rate-limiting (Blotato rate limit: 30 req/min)
+      await new Promise(r => setTimeout(r, 2000));
     }
   }
 
