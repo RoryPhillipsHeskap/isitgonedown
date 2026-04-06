@@ -163,6 +163,9 @@ const CONTENT = [
 ];
 
 // Blotato account IDs — accountId must be a string per Blotato v2 API
+// Facebook pageId confirmed via /v2/users/me/accounts/25818/subaccounts → items[0].id
+const FACEBOOK_PAGE_ID = '1081129795079160';
+
 const ACCOUNTS = [
   { id: '15712', platformKey: 'twitter',   contentKey: 'twitter'  },
   { id: '17133', platformKey: 'linkedin',  contentKey: 'linkedin' },
@@ -214,26 +217,6 @@ function schedulePost(accountId, text, platformKey, scheduledTime, extraTarget =
   });
 }
 
-// Fetch Facebook subaccounts to get the pageId required by the Blotato API
-function fetchSubaccounts(accountId) {
-  return new Promise((resolve, reject) => {
-    const req = https.request({
-      hostname: 'backend.blotato.com',
-      path: `/v2/users/me/accounts/${accountId}/subaccounts`,
-      method: 'GET',
-      headers: { 'blotato-api-key': BLOTATO_API_KEY },
-    }, (res) => {
-      let data = '';
-      res.on('data', (chunk) => { data += chunk; });
-      res.on('end', () => {
-        try { resolve({ status: res.statusCode, body: JSON.parse(data) }); }
-        catch (e) { resolve({ status: res.statusCode, body: data }); }
-      });
-    });
-    req.on('error', reject);
-    req.end();
-  });
-}
 
 exports.handler = async (event) => {
   // Safety guard: require ?confirm=yes so this can't be triggered accidentally
@@ -248,23 +231,8 @@ exports.handler = async (event) => {
   // ?test=1 runs only Day 1 so you can check the API response before scheduling everything
   const testMode = event.queryStringParameters && event.queryStringParameters.test === '1';
 
-  // Fetch Facebook pageId from subaccounts (required by Blotato API for Facebook posts)
-  let facebookPageId = null;
-  let facebookSubaccountsDebug = null;
-  try {
-    const sub = await fetchSubaccounts('25818');
-    facebookSubaccountsDebug = sub; // include raw response in output for debugging
-    console.log('Facebook subaccounts:', JSON.stringify(sub));
-    if (sub.status === 200 && sub.body) {
-      const list = sub.body.items || sub.body.subaccounts || sub.body.accounts || sub.body;
-      if (Array.isArray(list) && list.length > 0) {
-        facebookPageId = list[0].id || list[0].accountId || list[0].pageId;
-      }
-    }
-  } catch (e) {
-    console.error('Could not fetch Facebook subaccounts:', e.message);
-    facebookSubaccountsDebug = { error: e.message };
-  }
+  // Facebook pageId is hardcoded (confirmed from /v2/users/me/accounts/25818/subaccounts)
+  const facebookPageId = FACEBOOK_PAGE_ID;
   console.log('Using facebookPageId:', facebookPageId);
 
   const results = [];
@@ -317,7 +285,6 @@ exports.handler = async (event) => {
       successCount,
       errorCount,
       facebookPageId,
-      facebookSubaccountsDebug,
       results,
     }),
   };
