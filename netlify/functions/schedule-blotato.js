@@ -256,7 +256,7 @@ exports.handler = async (event) => {
     facebookSubaccountsDebug = sub; // include raw response in output for debugging
     console.log('Facebook subaccounts:', JSON.stringify(sub));
     if (sub.status === 200 && sub.body) {
-      const list = sub.body.subaccounts || sub.body.accounts || sub.body;
+      const list = sub.body.items || sub.body.subaccounts || sub.body.accounts || sub.body;
       if (Array.isArray(list) && list.length > 0) {
         facebookPageId = list[0].id || list[0].accountId || list[0].pageId;
       }
