@@ -2,5 +2,4 @@
   publish = "."
   functions = "netlify/functions"
 
-[functions."post-daily-social"]
-  schedule = "0 9 * * *"
+# post-daily-social schedule disabled — all 30 days are pre-scheduled in Blotato via schedule-blotato.js
