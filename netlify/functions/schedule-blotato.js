@@ -211,11 +211,16 @@ exports.handler = async (event) => {
     };
   }
 
+  // ?test=1 runs only Day 1 so you can check the API response before scheduling everything
+  const testMode = event.queryStringParameters && event.queryStringParameters.test === '1';
+
   const results = [];
   let successCount = 0;
   let errorCount = 0;
 
-  for (let dayIndex = 0; dayIndex < CONTENT.length; dayIndex++) {
+  const daysToSchedule = testMode ? 1 : CONTENT.length;
+
+  for (let dayIndex = 0; dayIndex < daysToSchedule; dayIndex++) {
     const dayContent = CONTENT[dayIndex];
     const dayNumber = dayIndex + 1;
 
@@ -235,6 +240,7 @@ exports.handler = async (event) => {
           scheduledFor,
           status: result.status,
           ok: success,
+          body: result.body,
         });
         if (success) successCount++; else errorCount++;
         console.log(`Day ${dayNumber} ${account.platform}: ${result.status} — ${scheduledFor}`);
@@ -244,8 +250,8 @@ exports.handler = async (event) => {
         console.error(`Day ${dayNumber} ${account.platform} ERROR:`, err.message);
       }
 
-      // Small delay to avoid rate-limiting
-      await new Promise(r => setTimeout(r, 200));
+      // Delay to avoid rate-limiting (Blotato allows ~10 req/s)
+      await new Promise(r => setTimeout(r, 500));
     }
   }
 
