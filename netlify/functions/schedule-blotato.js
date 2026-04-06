@@ -173,10 +173,12 @@ const ACCOUNTS = [
 function schedulePost(accountId, text, scheduledFor) {
   return new Promise((resolve, reject) => {
     const bodyStr = JSON.stringify({
-      accountId,
-      text,
-      postingType: 'scheduled',
-      scheduledFor,
+      post: {
+        accountId,
+        text,
+        postingType: 'scheduled',
+        scheduledFor,
+      },
     });
     const req = https.request({
       hostname: 'backend.blotato.com',

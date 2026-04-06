@@ -170,7 +170,7 @@ const ACCOUNTS = [
 
 function postToBlotato(accountId, text) {
   return new Promise((resolve, reject) => {
-    const bodyStr = JSON.stringify({ accountId, text, postingType: 'automatic' });
+    const bodyStr = JSON.stringify({ post: { accountId, text, postingType: 'now' } });
     const req = https.request({
       hostname: 'backend.blotato.com',
       path: '/v2/posts',
