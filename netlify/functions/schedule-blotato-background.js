@@ -167,10 +167,12 @@ const CONTENT = [
 // Blotato account IDs — accountId must be a string per Blotato v2 API
 // Facebook pageId confirmed via /v2/users/me/accounts/25818/subaccounts → items[0].id
 const FACEBOOK_PAGE_ID = '1081129795079160';
+// LinkedIn pageId = IsItGoneDown Company Page (from Blotato → Copy Page ID)
+const LINKEDIN_PAGE_ID = '112821123';
 
 const ACCOUNTS = [
   { id: '15712', platformKey: 'twitter',   contentKey: 'twitter'  },
-  { id: '17133', platformKey: 'linkedin',  contentKey: 'linkedin' },
+  { id: '17133', platformKey: 'linkedin',  contentKey: 'linkedin', needsPageId: true },
   { id: '25818', platformKey: 'facebook',  contentKey: 'facebook', needsPageId: true },
   { id: '39553', platformKey: 'instagram', contentKey: 'facebook' }, // Instagram uses Facebook text
 ];
@@ -229,14 +231,23 @@ exports.handler = async (event) => {
     return;
   }
 
-  // Facebook pageId is hardcoded (confirmed from /v2/users/me/accounts/25818/subaccounts)
-  const facebookPageId = FACEBOOK_PAGE_ID;
-  console.log('Starting schedule run. facebookPageId:', facebookPageId);
+  // ?startDay=N (1-based) lets you re-run from a specific day, e.g. ?startDay=2 skips Day 1
+  const startDay = parseInt((event.queryStringParameters && event.queryStringParameters.startDay) || '1', 10);
+  const startIndex = Math.max(0, startDay - 1);
+
+  // Page IDs for Facebook and LinkedIn company pages
+  const PAGE_IDS = {
+    facebook: FACEBOOK_PAGE_ID,
+    linkedin: LINKEDIN_PAGE_ID,
+  };
+  console.log('Starting schedule run. pageIds:', JSON.stringify(PAGE_IDS));
 
   let successCount = 0;
   let errorCount = 0;
 
-  for (let dayIndex = 0; dayIndex < CONTENT.length; dayIndex++) {
+  console.log(`Scheduling from Day ${startDay} (index ${startIndex}) to Day ${CONTENT.length}`);
+
+  for (let dayIndex = startIndex; dayIndex < CONTENT.length; dayIndex++) {
     const dayContent = CONTENT[dayIndex];
     const dayNumber = dayIndex + 1;
 
@@ -247,7 +258,7 @@ exports.handler = async (event) => {
 
     for (const account of ACCOUNTS) {
       const text = dayContent[account.contentKey];
-      const extraTarget = (account.needsPageId && facebookPageId) ? { pageId: facebookPageId } : {};
+      const extraTarget = account.needsPageId ? { pageId: PAGE_IDS[account.platformKey] } : {};
       try {
         const result = await schedulePost(account.id, text, account.platformKey, scheduledTime, extraTarget);
         const success = result.status >= 200 && result.status < 300;
