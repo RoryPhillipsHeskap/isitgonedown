@@ -1,0 +1,33 @@
+{
+  "days": [
+    { "day": 2,  "designId": "DAHGKyyF17A",  "date": "2026-04-08T09:00:00.000Z" },
+    { "day": 3,  "designId": "DAHGK8sXvYY",  "date": "2026-04-09T09:00:00.000Z" },
+    { "day": 4,  "designId": "DAHGKy4UaT8",  "date": "2026-04-10T09:00:00.000Z" },
+    { "day": 5,  "designId": "DAHGK4IGYXc",  "date": "2026-04-11T09:00:00.000Z" },
+    { "day": 6,  "designId": "DAHGK94lWs4",  "date": "2026-04-12T09:00:00.000Z" },
+    { "day": 7,  "designId": "DAHGK7JAoTA",  "date": "2026-04-13T09:00:00.000Z" },
+    { "day": 8,  "designId": "DAHGK52vdjY",  "date": "2026-04-14T09:00:00.000Z" },
+    { "day": 9,  "designId": "DAHGK89YDXY",  "date": "2026-04-15T09:00:00.000Z" },
+    { "day": 10, "designId": "DAHGK4biBnU",  "date": "2026-04-16T09:00:00.000Z" },
+    { "day": 11, "designId": "DAHGKzKvVQA",  "date": "2026-04-17T09:00:00.000Z" },
+    { "day": 12, "designId": "DAHGK9j4VUE",  "date": "2026-04-18T09:00:00.000Z" },
+    { "day": 13, "designId": "DAHGKwaVcZ0",  "date": "2026-04-19T09:00:00.000Z" },
+    { "day": 14, "designId": "DAHGK7Ka9Hk",  "date": "2026-04-20T09:00:00.000Z" },
+    { "day": 15, "designId": "DAHGK_5fszs",  "date": "2026-04-21T09:00:00.000Z" },
+    { "day": 16, "designId": "DAHGK_fE8zA",  "date": "2026-04-22T09:00:00.000Z" },
+    { "day": 17, "designId": "DAHGK-1_P8s",  "date": "2026-04-23T09:00:00.000Z" },
+    { "day": 18, "designId": "DAHGK8G81nE",  "date": "2026-04-24T09:00:00.000Z" },
+    { "day": 19, "designId": "DAHGKxOfkY4",  "date": "2026-04-25T09:00:00.000Z" },
+    { "day": 20, "designId": "DAHGKxvB1HQ",  "date": "2026-04-26T09:00:00.000Z" },
+    { "day": 21, "designId": "DAHGK9etvUQ",  "date": "2026-04-27T09:00:00.000Z" },
+    { "day": 22, "designId": "DAHGK0DbUFM",  "date": "2026-04-28T09:00:00.000Z" },
+    { "day": 23, "designId": "DAHGK8Glqvo",  "date": "2026-04-29T09:00:00.000Z" },
+    { "day": 24, "designId": "DAHGK9jGsFs",  "date": "2026-04-30T09:00:00.000Z" },
+    { "day": 25, "designId": "DAHGK_moMks",  "date": "2026-05-01T09:00:00.000Z" },
+    { "day": 26, "designId": "DAHGK2oXRIM",  "date": "2026-05-02T09:00:00.000Z" },
+    { "day": 27, "designId": "DAHGK74m_C0",  "date": "2026-05-03T09:00:00.000Z" },
+    { "day": 28, "designId": "DAHGKyra-bM",  "date": "2026-05-04T09:00:00.000Z" },
+    { "day": 29, "designId": "DAHGKx27PjA",  "date": "2026-05-05T09:00:00.000Z" },
+    { "day": 30, "designId": "DAHGK3Uv_tE",  "date": "2026-05-06T09:00:00.000Z" }
+  ]
+}

@@ -1,0 +1,199 @@
+﻿=== Blotato Instagram Reschedule Script ===
+Started: 2026-04-07 20:50:45
+
+20:50:45: PART A: Deleting existing Instagram scheduled posts...
+20:50:45: Fetching schedules from Blotato API...
+20:50:45: Fetching schedules (cursor: none)...
+20:50:47: Found 100 schedule(s) on this page
+20:50:47: Deleting Instagram scheduled post ID: 676978
+20:50:47:   ERROR deleting ID 676978: The remote server returned an error: (400) Bad Request.
+20:50:47: Deleting Instagram scheduled post ID: 682616
+20:50:47:   ERROR deleting ID 682616: The remote server returned an error: (400) Bad Request.
+20:50:47: Deleting Instagram scheduled post ID: 676983
+20:50:47:   ERROR deleting ID 676983: The remote server returned an error: (400) Bad Request.
+20:50:47: Deleting Instagram scheduled post ID: 682620
+20:50:47:   ERROR deleting ID 682620: The remote server returned an error: (400) Bad Request.
+20:50:47: Deleting Instagram scheduled post ID: 677035
+20:50:47:   ERROR deleting ID 677035: The remote server returned an error: (400) Bad Request.
+20:50:47: Deleting Instagram scheduled post ID: 682624
+20:50:47:   ERROR deleting ID 682624: The remote server returned an error: (400) Bad Request.
+20:50:47: Deleting Instagram scheduled post ID: 677040
+20:50:47:   ERROR deleting ID 677040: The remote server returned an error: (400) Bad Request.
+20:50:47: Deleting Instagram scheduled post ID: 682628
+20:50:47:   ERROR deleting ID 682628: The remote server returned an error: (400) Bad Request.
+20:50:47: Deleting Instagram scheduled post ID: 677044
+20:50:47:   ERROR deleting ID 677044: The remote server returned an error: (400) Bad Request.
+20:50:47: Deleting Instagram scheduled post ID: 682633
+20:50:47:   ERROR deleting ID 682633: The remote server returned an error: (400) Bad Request.
+20:50:47: Deleting Instagram scheduled post ID: 677048
+20:50:48:   ERROR deleting ID 677048: The remote server returned an error: (400) Bad Request.
+20:50:48: Deleting Instagram scheduled post ID: 682637
+20:50:48:   ERROR deleting ID 682637: The remote server returned an error: (400) Bad Request.
+20:50:48: Deleting Instagram scheduled post ID: 677052
+20:50:48:   ERROR deleting ID 677052: The remote server returned an error: (400) Bad Request.
+20:50:48: Deleting Instagram scheduled post ID: 682645
+20:50:48:   ERROR deleting ID 682645: The remote server returned an error: (400) Bad Request.
+20:50:48: Deleting Instagram scheduled post ID: 677057
+20:50:48:   ERROR deleting ID 677057: The remote server returned an error: (400) Bad Request.
+20:50:48: Deleting Instagram scheduled post ID: 682649
+20:50:48:   ERROR deleting ID 682649: The remote server returned an error: (400) Bad Request.
+20:50:48: Deleting Instagram scheduled post ID: 677061
+20:50:48:   ERROR deleting ID 677061: The remote server returned an error: (400) Bad Request.
+20:50:48: Deleting Instagram scheduled post ID: 682657
+20:50:48:   ERROR deleting ID 682657: The remote server returned an error: (400) Bad Request.
+20:50:48: Deleting Instagram scheduled post ID: 677065
+20:50:48:   ERROR deleting ID 677065: The remote server returned an error: (400) Bad Request.
+20:50:48: Deleting Instagram scheduled post ID: 682661
+20:50:48:   ERROR deleting ID 682661: The remote server returned an error: (400) Bad Request.
+20:50:48: Deleting Instagram scheduled post ID: 677069
+20:50:49:   ERROR deleting ID 677069: The remote server returned an error: (400) Bad Request.
+20:50:49: Deleting Instagram scheduled post ID: 682665
+20:50:49:   ERROR deleting ID 682665: The remote server returned an error: (400) Bad Request.
+20:50:49: Deleting Instagram scheduled post ID: 677073
+20:50:49:   ERROR deleting ID 677073: The remote server returned an error: (400) Bad Request.
+20:50:49: Deleting Instagram scheduled post ID: 682669
+20:50:49:   ERROR deleting ID 682669: The remote server returned an error: (400) Bad Request.
+20:50:49: Deleting Instagram scheduled post ID: 677077
+20:50:49:   ERROR deleting ID 677077: The remote server returned an error: (400) Bad Request.
+20:50:49: Deleting Instagram scheduled post ID: 682673
+20:50:49:   ERROR deleting ID 682673: The remote server returned an error: (400) Bad Request.
+20:50:49: Deleting Instagram scheduled post ID: 677081
+20:50:49:   ERROR deleting ID 677081: The remote server returned an error: (400) Bad Request.
+20:50:49: Deleting Instagram scheduled post ID: 682677
+20:50:49:   ERROR deleting ID 682677: The remote server returned an error: (400) Bad Request.
+20:50:49: More schedules available, cursor: MjAyNi0wNC0yMlQwOTowMDowMC4wMDBaXzY3NzA4NA==
+20:50:49: Fetching schedules (cursor: MjAyNi0wNC0yMlQwOTowMDowMC4wMDBaXzY3NzA4NA==)...
+20:50:50: Found 100 schedule(s) on this page
+20:50:50: Deleting Instagram scheduled post ID: 677086
+20:50:50:   ERROR deleting ID 677086: The remote server returned an error: (400) Bad Request.
+20:50:50: Deleting Instagram scheduled post ID: 682682
+20:50:50:   ERROR deleting ID 682682: The remote server returned an error: (400) Bad Request.
+20:50:50: Deleting Instagram scheduled post ID: 677093
+20:50:50:   ERROR deleting ID 677093: The remote server returned an error: (400) Bad Request.
+20:50:50: Deleting Instagram scheduled post ID: 682687
+20:50:50:   ERROR deleting ID 682687: The remote server returned an error: (400) Bad Request.
+20:50:50: Deleting Instagram scheduled post ID: 677098
+20:50:51:   ERROR deleting ID 677098: The remote server returned an error: (400) Bad Request.
+20:50:51: Deleting Instagram scheduled post ID: 682691
+20:50:51:   ERROR deleting ID 682691: The remote server returned an error: (400) Bad Request.
+20:50:51: Deleting Instagram scheduled post ID: 677102
+20:50:51:   ERROR deleting ID 677102: The remote server returned an error: (400) Bad Request.
+20:50:51: Deleting Instagram scheduled post ID: 682695
+20:50:51:   ERROR deleting ID 682695: The remote server returned an error: (400) Bad Request.
+20:50:51: Deleting Instagram scheduled post ID: 677106
+20:50:51:   ERROR deleting ID 677106: The remote server returned an error: (400) Bad Request.
+20:50:51: Deleting Instagram scheduled post ID: 682699
+20:50:51:   ERROR deleting ID 682699: The remote server returned an error: (400) Bad Request.
+20:50:51: Deleting Instagram scheduled post ID: 677110
+20:50:51:   ERROR deleting ID 677110: The remote server returned an error: (400) Bad Request.
+20:50:51: Deleting Instagram scheduled post ID: 682703
+20:50:51:   ERROR deleting ID 682703: The remote server returned an error: (400) Bad Request.
+20:50:51: Deleting Instagram scheduled post ID: 677115
+20:50:51:   ERROR deleting ID 677115: The remote server returned an error: (400) Bad Request.
+20:50:51: Deleting Instagram scheduled post ID: 682708
+20:50:51:   ERROR deleting ID 682708: The remote server returned an error: (400) Bad Request.
+20:50:51: Deleting Instagram scheduled post ID: 677122
+20:50:51:   ERROR deleting ID 677122: The remote server returned an error: (400) Bad Request.
+20:50:51: Deleting Instagram scheduled post ID: 682712
+20:50:52:   ERROR deleting ID 682712: The remote server returned an error: (400) Bad Request.
+20:50:52: Deleting Instagram scheduled post ID: 677129
+20:50:52:   ERROR deleting ID 677129: The remote server returned an error: (400) Bad Request.
+20:50:52: Deleting Instagram scheduled post ID: 682716
+20:50:52:   ERROR deleting ID 682716: The remote server returned an error: (400) Bad Request.
+20:50:52: Deleting Instagram scheduled post ID: 677136
+20:50:52:   ERROR deleting ID 677136: The remote server returned an error: (400) Bad Request.
+20:50:52: Deleting Instagram scheduled post ID: 682720
+20:50:52:   ERROR deleting ID 682720: The remote server returned an error: (400) Bad Request.
+20:50:52: Deleting Instagram scheduled post ID: 677141
+20:50:52:   ERROR deleting ID 677141: The remote server returned an error: (400) Bad Request.
+20:50:52: Deleting Instagram scheduled post ID: 682724
+20:50:52:   ERROR deleting ID 682724: The remote server returned an error: (400) Bad Request.
+20:50:52: Deleting Instagram scheduled post ID: 677145
+20:50:52:   ERROR deleting ID 677145: The remote server returned an error: (400) Bad Request.
+20:50:52: Deleting Instagram scheduled post ID: 682728
+20:50:52:   ERROR deleting ID 682728: The remote server returned an error: (400) Bad Request.
+20:50:52: Deleting Instagram scheduled post ID: 677149
+20:50:52:   ERROR deleting ID 677149: The remote server returned an error: (400) Bad Request.
+20:50:52: Deleting Instagram scheduled post ID: 682732
+20:50:52:   ERROR deleting ID 682732: The remote server returned an error: (400) Bad Request.
+20:50:52: Deleting Instagram scheduled post ID: 677154
+20:50:53:   ERROR deleting ID 677154: The remote server returned an error: (400) Bad Request.
+20:50:53: Deleting Instagram scheduled post ID: 682740
+20:50:53:   ERROR deleting ID 682740: The remote server returned an error: (400) Bad Request.
+20:50:53: Deleting Instagram scheduled post ID: 677158
+20:50:53:   ERROR deleting ID 677158: The remote server returned an error: (400) Bad Request.
+20:50:53: More schedules available, cursor: MjAyNi0wNS0wNlQwOTowMDowMC4wMDBaXzY4Mjc0MQ==
+20:50:53: Fetching schedules (cursor: MjAyNi0wNS0wNlQwOTowMDowMC4wMDBaXzY4Mjc0MQ==)...
+20:50:53: Found 3 schedule(s) on this page
+20:50:53: Deleting Instagram scheduled post ID: 682744
+20:50:53:   ERROR deleting ID 682744: The remote server returned an error: (400) Bad Request.
+20:50:53: Part A complete. Deleted: 0 posts
+20:50:53: 
+20:50:53: PART B: Creating 29 new Instagram posts...
+20:50:53: Creating 29 Instagram posts...
+20:50:53: Creating Day 2 post (scheduled for 2026-04-08T09:00:00.000Z)...
+20:50:54:   SUCCESS: Created Day 2 (ID: )
+20:50:56: Creating Day 3 post (scheduled for 2026-04-09T09:00:00.000Z)...
+20:50:56:   SUCCESS: Created Day 3 (ID: )
+20:50:58: Creating Day 4 post (scheduled for 2026-04-10T09:00:00.000Z)...
+20:50:59:   SUCCESS: Created Day 4 (ID: )
+20:51:01: Creating Day 5 post (scheduled for 2026-04-11T09:00:00.000Z)...
+20:51:01:   SUCCESS: Created Day 5 (ID: )
+20:51:03: Creating Day 6 post (scheduled for 2026-04-12T09:00:00.000Z)...
+20:51:04:   SUCCESS: Created Day 6 (ID: )
+20:51:06: Creating Day 7 post (scheduled for 2026-04-13T09:00:00.000Z)...
+20:51:06:   SUCCESS: Created Day 7 (ID: )
+20:51:08: Creating Day 8 post (scheduled for 2026-04-14T09:00:00.000Z)...
+20:51:09:   SUCCESS: Created Day 8 (ID: )
+20:51:11: Creating Day 9 post (scheduled for 2026-04-15T09:00:00.000Z)...
+20:51:11:   SUCCESS: Created Day 9 (ID: )
+20:51:13: Creating Day 10 post (scheduled for 2026-04-16T09:00:00.000Z)...
+20:51:14:   SUCCESS: Created Day 10 (ID: )
+20:51:16: Creating Day 11 post (scheduled for 2026-04-17T09:00:00.000Z)...
+20:51:16:   SUCCESS: Created Day 11 (ID: )
+20:51:18: Creating Day 12 post (scheduled for 2026-04-18T09:00:00.000Z)...
+20:51:19:   SUCCESS: Created Day 12 (ID: )
+20:51:21: Creating Day 13 post (scheduled for 2026-04-19T09:00:00.000Z)...
+20:51:21:   SUCCESS: Created Day 13 (ID: )
+20:51:23: Creating Day 14 post (scheduled for 2026-04-20T09:00:00.000Z)...
+20:51:24:   SUCCESS: Created Day 14 (ID: )
+20:51:26: Creating Day 15 post (scheduled for 2026-04-21T09:00:00.000Z)...
+20:51:26:   SUCCESS: Created Day 15 (ID: )
+20:51:28: Creating Day 16 post (scheduled for 2026-04-22T09:00:00.000Z)...
+20:51:29:   SUCCESS: Created Day 16 (ID: )
+20:51:31: Creating Day 17 post (scheduled for 2026-04-23T09:00:00.000Z)...
+20:51:31:   SUCCESS: Created Day 17 (ID: )
+20:51:33: Creating Day 18 post (scheduled for 2026-04-24T09:00:00.000Z)...
+20:51:34:   SUCCESS: Created Day 18 (ID: )
+20:51:36: Creating Day 19 post (scheduled for 2026-04-25T09:00:00.000Z)...
+20:51:36:   SUCCESS: Created Day 19 (ID: )
+20:51:38: Creating Day 20 post (scheduled for 2026-04-26T09:00:00.000Z)...
+20:51:39:   SUCCESS: Created Day 20 (ID: )
+20:51:41: Creating Day 21 post (scheduled for 2026-04-27T09:00:00.000Z)...
+20:51:41:   SUCCESS: Created Day 21 (ID: )
+20:51:43: Creating Day 22 post (scheduled for 2026-04-28T09:00:00.000Z)...
+20:51:44:   SUCCESS: Created Day 22 (ID: )
+20:51:46: Creating Day 23 post (scheduled for 2026-04-29T09:00:00.000Z)...
+20:51:47:   SUCCESS: Created Day 23 (ID: )
+20:51:49: Creating Day 24 post (scheduled for 2026-04-30T09:00:00.000Z)...
+20:51:49:   SUCCESS: Created Day 24 (ID: )
+20:51:51: Creating Day 25 post (scheduled for 2026-05-01T09:00:00.000Z)...
+20:51:52:   SUCCESS: Created Day 25 (ID: )
+20:51:54: Creating Day 26 post (scheduled for 2026-05-02T09:00:00.000Z)...
+20:51:54:   SUCCESS: Created Day 26 (ID: )
+20:51:56: Creating Day 27 post (scheduled for 2026-05-03T09:00:00.000Z)...
+20:51:57:   SUCCESS: Created Day 27 (ID: )
+20:51:59: Creating Day 28 post (scheduled for 2026-05-04T09:00:00.000Z)...
+20:51:59:   SUCCESS: Created Day 28 (ID: )
+20:52:01: Creating Day 29 post (scheduled for 2026-05-05T09:00:00.000Z)...
+20:52:02:   SUCCESS: Created Day 29 (ID: )
+20:52:04: Creating Day 30 post (scheduled for 2026-05-06T09:00:00.000Z)...
+20:52:04:   SUCCESS: Created Day 30 (ID: )
+20:52:06: 
+20:52:06: === SUMMARY ===
+20:52:06: Deleted: 0
+20:52:06: Created: 29
+20:52:06: Errors: 58
+20:52:06: 
+Completed: 2026-04-07 20:52:06
+DONE: Deleted=0 Created=29 Errors=58
