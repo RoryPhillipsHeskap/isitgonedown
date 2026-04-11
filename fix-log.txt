@@ -1,0 +1,8 @@
+﻿Script started 04/11/2026 21:50:44
+Add-Type OK
+Fetching Google Sheet...
+CRASH: The remote server returned an error: (404) Not Found.
+
+At: At C:\Users\Rory\Documents\GitHub\isitgonedown\fix-all-v3.ps1:18 char:16
++ ...  $csvResp = Invoke-WebRequest -Uri $csvUrl -UseBasicParsing -ErrorAct ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

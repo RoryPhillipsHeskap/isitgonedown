@@ -1,0 +1,141 @@
+﻿{
+    "items":  [
+                  {
+                      "id":  "677041",
+                      "draft":  {
+                                    "target":  {
+                                                   "targetType":  "twitter"
+                                               },
+                                    "content":  {
+                                                    "text":  "Weekend tip: bookmark isitgonedown.com. You\u0027ll thank yourself next time Netflix, Spotify, or your bank goes down 🤷 #LifeHack",
+                                                    "platform":  "twitter",
+                                                    "mediaUrls":  [
+
+                                                                  ]
+                                                },
+                                    "accountId":  "15712"
+                                },
+                      "scheduledAt":  "2026-04-12T09:00:00.000Z",
+                      "account":  {
+                                      "id":  "15712",
+                                      "name":  "",
+                                      "subId":  null,
+                                      "username":  "isitgonedown",
+                                      "subaccountId":  null,
+                                      "subaccountName":  null,
+                                      "profileImageUrl":  "https://pbs.twimg.com/profile_images/2041170186661756928/AAXm0S_n_normal.jpg"
+                                  }
+                  },
+                  {
+                      "id":  "677043",
+                      "draft":  {
+                                    "target":  {
+                                                   "pageId":  "1081129795079160",
+                                                   "targetType":  "facebook"
+                                               },
+                                    "content":  {
+                                                    "text":  "💡 Bookmark of the week: isitgonedown.com — so next time your favourite site goes dark, you\u0027re not sitting there wondering if it\u0027s just you.",
+                                                    "platform":  "facebook",
+                                                    "mediaUrls":  [
+
+                                                                  ]
+                                                },
+                                    "accountId":  "25818"
+                                },
+                      "scheduledAt":  "2026-04-12T09:00:00.000Z",
+                      "account":  {
+                                      "id":  "25818",
+                                      "name":  "Rory Phillips",
+                                      "subId":  "1081129795079160",
+                                      "username":  "",
+                                      "subaccountId":  "70340",
+                                      "subaccountName":  "Isitgonedown",
+                                      "profileImageUrl":  "https://database.blotato.io/storage/v1/object/public/public_media/c17db3c3-317e-42ee-ba6b-f3d1da40f694/21b51541-588e-479f-85ad-6921371b9fd1.jpg"
+                                  }
+                  },
+                  {
+                      "id":  "682631",
+                      "draft":  {
+                                    "target":  {
+                                                   "pageId":  "112821123",
+                                                   "targetType":  "linkedin"
+                                               },
+                                    "content":  {
+                                                    "text":  "Quick tip for the weekend: add isitgonedown.com to your bookmarks. You\u0027ll need it more than you think — outages don\u0027t take days off.",
+                                                    "platform":  "linkedin",
+                                                    "mediaUrls":  [
+
+                                                                  ]
+                                                },
+                                    "accountId":  "17133"
+                                },
+                      "scheduledAt":  "2026-04-12T09:00:00.000Z",
+                      "account":  {
+                                      "id":  "17133",
+                                      "name":  "𝗥𝗼𝗿𝘆  𝗣𝗵𝗶𝗹𝗹𝗶𝗽𝘀 ",
+                                      "subId":  "112821123",
+                                      "username":  "",
+                                      "subaccountId":  "70341",
+                                      "subaccountName":  "IsItGoneDown",
+                                      "profileImageUrl":  "https://media.licdn.com/dms/image/v2/C4D03AQHDArjT8-7EkQ/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1556528230212?e=1776902400\u0026v=beta\u0026t=8FclNSh2L7afDAKTSuWSvZ81Kg7I3X4sh-a-3StlWMg"
+                                  }
+                  },
+                  {
+                      "id":  "686435",
+                      "draft":  {
+                                    "target":  {
+                                                   "targetType":  "instagram"
+                                               },
+                                    "content":  {
+                                                    "text":  "?? Bookmark of the week: isitgonedown.com - so next time your favourite site goes dark, you\u0027re not sitting there wondering if it\u0027s just you.",
+                                                    "platform":  "instagram",
+                                                    "mediaUrls":  [
+                                                                      "https://database.blotato.io/storage/v1/object/public/public_media/c17db3c3-317e-42ee-ba6b-f3d1da40f694/5bfd96a6-5fe4-44e4-9f5e-8fc15db71531.jpeg"
+                                                                  ]
+                                                },
+                                    "accountId":  "39553"
+                                },
+                      "scheduledAt":  "2026-04-12T09:00:00.000Z",
+                      "account":  {
+                                      "id":  "39553",
+                                      "name":  "",
+                                      "subId":  null,
+                                      "username":  "isitgonedown",
+                                      "subaccountId":  null,
+                                      "subaccountName":  null,
+                                      "profileImageUrl":  null
+                                  }
+                  },
+                  {
+                      "id":  "701232",
+                      "draft":  {
+                                    "target":  {
+                                                   "targetType":  "twitter"
+                                               },
+                                    "content":  {
+                                                    "text":  "Weekend tip: bookmark isitgonedown.com. You\u0027ll thank yourself next time Netflix, Spotify, or your bank goes down 🤷 #LifeHack",
+                                                    "platform":  "twitter",
+                                                    "mediaUrls":  [
+
+                                                                  ]
+                                                },
+                                    "accountId":  "15712"
+                                },
+                      "scheduledAt":  "2026-04-12T09:00:00.000Z",
+                      "account":  {
+                                      "id":  "15712",
+                                      "name":  "",
+                                      "subId":  null,
+                                      "username":  "isitgonedown",
+                                      "subaccountId":  null,
+                                      "subaccountName":  null,
+                                      "profileImageUrl":  "https://pbs.twimg.com/profile_images/2041170186661756928/AAXm0S_n_normal.jpg"
+                                  }
+                  }
+              ],
+    "count":  "200",
+    "cursor":  "MjAyNi0wNC0xMlQwOTowMDowMC4wMDBaXzcwMTIzMg=="
+}
+
+
+Posts endpoint failed: {"message":"Unauthorized"}

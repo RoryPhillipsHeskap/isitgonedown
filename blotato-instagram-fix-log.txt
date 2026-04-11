@@ -1,0 +1,46 @@
+﻿=== Instagram Fix Script - 04/11/2026 21:05:48 ===
+21:05:48: Script started
+21:05:48: STEP 1: Collecting all Instagram schedule IDs...
+21:05:50:   Page: 100 items
+21:05:50:   Found Instagram ID=716145 scheduledAt=2026-04-12T09:00:00.000Z media=https://database.blotato.io/storage/v1/object/public/public_media/c17db3c3-317e-42ee-ba6b-f3d1da40f694/c9926e51-0031-4f48-9399-d9e5a1064ef4.jpeg
+21:05:50:   Page: 51 items
+21:05:50: Total Instagram schedules found: 1
+21:05:50: 
+21:05:50: STEP 2: Deleting 1 Instagram schedules...
+21:05:51:   DELETE schedules/716145: OK (204)
+21:05:51: Deletes: 1 OK, 0 failed
+21:05:51: 
+21:05:51: STEP 3: Creating Instagram posts Days 6-30...
+21:05:51:   Day 6 (2026-04-12T09:00:00.000Z): 201 - {"postSubmissionId":"052c1f7f-c19a-4e9b-9795-40f7f1ed937a"}
+21:05:52:   Day 7 (2026-04-13T09:00:00.000Z): 201 - {"postSubmissionId":"6d8185c6-ca55-4f39-acc9-1563942b11c0"}
+21:05:53:   Day 8 (2026-04-14T09:00:00.000Z): 201 - {"postSubmissionId":"3806f0a3-920e-4396-9d90-654a98548519"}
+21:05:54:   Day 9 (2026-04-15T09:00:00.000Z): 201 - {"postSubmissionId":"7e037c6d-dcfe-4b9c-a7b6-363c95d5b5ce"}
+21:05:55:   Day 10 (2026-04-16T09:00:00.000Z): 201 - {"postSubmissionId":"b76e4d51-a64b-470e-a1b3-f86abc97adcf"}
+21:05:56:   Day 11 (2026-04-17T09:00:00.000Z): 201 - {"postSubmissionId":"81ac0cf1-a4eb-4ac2-9db7-b619afce289d"}
+21:05:57:   Day 12 (2026-04-18T09:00:00.000Z): 201 - {"postSubmissionId":"815ee38d-5404-4ca5-a40d-955f12c17919"}
+21:05:58:   Day 13 (2026-04-19T09:00:00.000Z): 201 - {"postSubmissionId":"cf67ed42-7ce4-4493-b7a7-28d46a98f499"}
+21:05:59:   Day 14 (2026-04-20T09:00:00.000Z): 201 - {"postSubmissionId":"d1b69b57-397d-4893-a50b-b3cac35d3d9e"}
+21:06:00:   Day 15 (2026-04-21T09:00:00.000Z): 201 - {"postSubmissionId":"b2ea34af-f23f-4139-b55c-902e55b3e8a2"}
+21:06:01:   Day 16 (2026-04-22T09:00:00.000Z): 201 - {"postSubmissionId":"802bacc3-93c3-4fa0-bb02-3a036271ca6b"}
+21:06:02:   Day 17 (2026-04-23T09:00:00.000Z): 201 - {"postSubmissionId":"5bcd772c-324f-4f1a-b24e-20932759db88"}
+21:06:03:   Day 18 (2026-04-24T09:00:00.000Z): 201 - {"postSubmissionId":"76e9237f-3311-46aa-afc0-54905a9247aa"}
+21:06:04:   Day 19 (2026-04-25T09:00:00.000Z): 201 - {"postSubmissionId":"ca36c825-8427-410d-ae2b-11abd50b3737"}
+21:06:06:   Day 20 (2026-04-26T09:00:00.000Z): 201 - {"postSubmissionId":"7bc4ba76-2351-4e49-95f1-5dae873b786c"}
+21:06:07:   Day 21 (2026-04-27T09:00:00.000Z): 201 - {"postSubmissionId":"40b8213b-ef8b-4e41-8f92-28ac0636f618"}
+21:06:08:   Day 22 (2026-04-28T09:00:00.000Z): 201 - {"postSubmissionId":"27315e7e-4ba4-4d7a-8523-f19dcebb1330"}
+21:06:09:   Day 23 (2026-04-29T09:00:00.000Z): 201 - {"postSubmissionId":"d6a39bba-5714-4c09-b761-3665331a49be"}
+21:06:10:   Day 24 (2026-04-30T09:00:00.000Z): 201 - {"postSubmissionId":"4a8df5da-78ba-48f4-b1b7-8a0d61320f1c"}
+21:06:11:   Day 25 (2026-05-01T09:00:00.000Z): 201 - {"postSubmissionId":"151dfa7a-ec0d-4856-8e72-9fea412eb680"}
+21:06:12:   Day 26 (2026-05-02T09:00:00.000Z): 201 - {"postSubmissionId":"3aea00ed-8822-4e41-ac74-392abe58a61d"}
+21:06:13:   Day 27 (2026-05-03T09:00:00.000Z): 201 - {"postSubmissionId":"2c3c5da7-c9ac-4d2e-91dc-2eb58dacb49e"}
+21:06:14:   Day 28 (2026-05-04T09:00:00.000Z): 201 - {"postSubmissionId":"909fdda9-2b7a-4766-9d71-b2b390001c73"}
+21:06:15:   Day 29 (2026-05-05T09:00:00.000Z): 201 - {"postSubmissionId":"6d89730e-820e-4f9a-9f1e-9f6610b6d413"}
+21:06:16:   Day 30 (2026-05-06T09:00:00.000Z): 201 - {"postSubmissionId":"5e94e91f-ad0a-4241-8d08-72cd141139c3"}
+21:06:16: 
+21:06:16: === SUMMARY ===
+21:06:16: Instagram IDs found:   1
+21:06:16: Deleted:               1
+21:06:16: Delete failed:         0
+21:06:16: Created:               25
+21:06:16: Create failed:         0
+21:06:16: Done at 04/11/2026 21:06:16
