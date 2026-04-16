@@ -1,0 +1,14 @@
+﻿DATE=2026-04-15
+ALL_SCHEDULED=84
+
+=== UNIQUE DATES IN SCHEDULE ===
+
+=== STATUS BREAKDOWN ===
+: 84
+
+=== SAMPLE ITEMS (first 5) ===
+scheduledTime= status= platform=instagram
+scheduledTime= status= platform=twitter
+scheduledTime= status= platform=linkedin
+scheduledTime= status= platform=facebook
+scheduledTime= status= platform=instagram

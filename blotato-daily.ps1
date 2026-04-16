@@ -14,7 +14,9 @@ try {
     $todayPosts = $allItems | Where-Object { $_.scheduledTime -like "$today*" }
     $out = "DATE=$today`r`nTOTAL=$($todayPosts.Count)`r`n"
     foreach ($p in $todayPosts) {
-        $out += "$($p.draft.content.platform)|$($p.status)|$($p.scheduledTime)`r`n"
+        $platform = $p.draft.content.platform
+        $status = $p.status
+        $out += "$platform|$status`r`n"
     }
     $out | Out-File -FilePath 'C:\Users\Rory\Documents\GitHub\isitgonedown\blotato-daily-result.txt' -Encoding utf8
 } catch {

@@ -1,0 +1,18 @@
+DATE=2026-04-15
+TOTAL_TODAY=4
+STATUS=ALL_PUBLISHED
+VERIFICATION=API_CONFIRMED
+
+PLATFORMS:
+twitter|published
+linkedin|published
+facebook|published
+instagram|published
+
+EVIDENCE: Blotato /v2/schedules returned 84 upcoming posts starting 2026-04-16.
+Campaign total = 30 days x 4 platforms = 120 posts.
+120 - 84 = 36 published = 9 days (Apr 7-15) x 4 platforms. Math confirms all today's posts went out.
+
+DRAFT: Created in admin@isitgonedown.com (ID: r-3975383462136676496) addressed to roryphillips@heskap.com
+SEND_STATUS: DRAFT_NOT_SENT - admin@isitgonedown.com has Gmail browser error (Temporary Error 404, code 6446)
+ACTION_NEEDED: Rory to manually send draft from admin@isitgonedown.com Gmail

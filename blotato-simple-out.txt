@@ -1,0 +1,15 @@
+﻿COUNT=84
+CURSOR=
+
+[0] time= status= platform=instagram
+[1] time= status= platform=twitter
+[2] time= status= platform=linkedin
+[3] time= status= platform=facebook
+[4] time= status= platform=instagram
+[5] time= status= platform=twitter
+[6] time= status= platform=linkedin
+[7] time= status= platform=facebook
+[8] time= status= platform=instagram
+[9] time= status= platform=twitter
+
+DATE COUNTS:
